@@ -1,15 +1,18 @@
-
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using System.Text;
 
 namespace Backend
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,24 @@ namespace Backend
 
             builder.Services.AddIdentity<User, IdentityRole<int>>()
                 .AddEntityFrameworkStores<DatabaseContext>();
+
+            builder.Services.AddAuthorization();
+            builder.Services.AddTransient<ITokenService, JwtTokenService>();
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ClockSkew = TimeSpan.FromSeconds(0),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["jwt:Issuer"],
+                        ValidAudience = builder.Configuration["jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwt:Key"]!))
+                    };
+                });
 
             //builder.Services.AddSingleton(new MongoClient(builder.Configuration["MongoDatabase"]));
             
@@ -35,10 +56,29 @@ namespace Backend
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                using (var scope = app.Services.CreateScope())
+                {
+                    try
+                    {
+                        var services = scope.ServiceProvider;
+                        var configuration = builder.Configuration;
+                        var userManager = services.GetService<UserManager<User>>();
+                        var roleManager = services.GetService<RoleManager<IdentityRole<int>>>();
+
+                        await Initializer.Initialize(configuration, roleManager!, userManager!);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+
             }
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
