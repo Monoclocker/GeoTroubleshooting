@@ -10,6 +10,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="public\" />
-    <Folder Include="src\assets\" />
+    <Folder Include="src\utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Remove="src\assets\Новая папка\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="src\assets\Новая папка\**" />
   </ItemGroup>
 </Project>

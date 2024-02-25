@@ -21,14 +21,25 @@ namespace Backend
             builder.Services.AddControllers();
             builder.Services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(builder.Configuration["Database"] ?? throw new Exception("Database doesn't exist")));
 
-            builder.Services.AddIdentity<User, IdentityRole<int>>()
+            builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            })
                 .AddEntityFrameworkStores<DatabaseContext>();
 
             builder.Services.AddAuthorization();
             builder.Services.AddTransient<ITokenService, JwtTokenService>();
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(options =>
                 {
+                    
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ClockSkew = TimeSpan.FromSeconds(0),
@@ -77,7 +88,12 @@ namespace Backend
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors(options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+            });
             app.UseAuthentication();
             app.UseAuthorization();
 

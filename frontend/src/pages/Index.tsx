@@ -1,22 +1,22 @@
-﻿import { Form, Input, Button } from "antd"
+﻿import { Layout } from "antd"
+import { Content } from "antd/es/layout/layout"
+import LoginForm from "../components/LoginForm"
+
 
 
 function Index() {
 
     return (
-        <>
-            <></>
-            <Form>
-                <Form.Item>
-                    <Input></Input>
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">Зарегистрироваться</Button>
-                </Form.Item>
-
-            </Form>
-        </>
+        <Layout>
+            <Content
+                style={
+                    {
+                        minHeight: '100vh'
+                    }
+                }>
+                <LoginForm/>
+            </Content>
+        </Layout>
     )
 
         
