@@ -16,8 +16,9 @@ type APIResponce = {
     Body?: unknown
 }
 
-interface Tokens {
-    accessToken: string
+interface ITokens {
+    accessToken: string,
+    refreshToken: string
 }
 
 interface ErrorResponce {
@@ -25,3 +26,8 @@ interface ErrorResponce {
 }
 
 type APIMethod = "POST" | "GET" | "UPDATE" | "DELETE"
+
+interface IUser {
+    Username: string,
+    Email: string
+}

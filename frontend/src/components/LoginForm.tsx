@@ -1,11 +1,13 @@
 ﻿import { Form, Input, Button, notification } from "antd"
-import { useAPI } from "../services/useAPI"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { Link } from "react-router-dom"
+import { useStores } from "./RootContext"
+import { AuthService } from "../services/AuthService"
 export default function LoginForm() {
 
-    const { fetchTrigger } = useAPI("User/signIn")
+    const { authStore } = useStores()
+    const { Login } = AuthService(authStore)
     const navigate = useNavigate()
     const [isLoading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification()
@@ -14,30 +16,18 @@ export default function LoginForm() {
 
         setLoading(true)
 
-        const { StatusCode, Body } = await fetchTrigger("POST", values)
-
-        if (StatusCode == 401) {
-
-
+        if (!await Login(values)) {
             api.error({
                 message: "Пользователя не существует",
-                placement: 'top'
-            })
-
-        }
-
-        else if (StatusCode == 400) {
-            api.error({
-                message: "Ошибка в запросе",
                 placement: 'top'
             })
         }
 
         else {
-            const tokens: Tokens = Body as Tokens
-            localStorage.setItem("access", tokens.accessToken)
             navigate("/profile")
         }
+            
+        
 
         setLoading(false)
     }

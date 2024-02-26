@@ -1,11 +1,16 @@
 ﻿import { Form, Input, Button, notification } from "antd"
-import { useAPI } from "../services/useAPI"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { Link } from "react-router-dom"
+import { useStores } from "./RootContext"
+import { AuthService } from "../services/AuthService"
 export default function RegisterForm(){
 
-    const { fetchTrigger } = useAPI("User/register")
+
+    const { authStore } = useStores();
+
+    const { Register } = AuthService(authStore)
+
     const navigate = useNavigate()
     const [isLoading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification()
@@ -14,17 +19,11 @@ export default function RegisterForm(){
 
         setLoading(true)
 
-        const { StatusCode, Body } = await fetchTrigger("POST", values)
-
-        if (StatusCode != 200) {
-
-            const error: ErrorResponce = Body as ErrorResponce
-
+        if (!await Register(values)) {
             api.error({
-                message: error.description,
+                message: "Что то пошло не так :(",
                 placement: 'top'
             })
-
         }
 
         else {
