@@ -1,7 +1,37 @@
 import { AuthStore } from "../stores/AuthStore"
-import { ADDRESS, LOGIN_PATH, REGISTER_PATH } from "../utils/APIConstants"
+import { ADDRESS, LOGIN_PATH, REGISTER_PATH, VERIFY_PATH } from "../utils/APIConstants"
 
 export const AuthService = (store: AuthStore) => {
+
+    const VerifyRefreshToken = async (refreshToken: string|null) => {
+
+        if (refreshToken == null) {
+            SignOut()
+            return
+        }
+
+        const responce = await fetch(ADDRESS + VERIFY_PATH, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ "refreshToken": refreshToken })
+        })
+
+        if (responce.status == 400) {
+            SignOut()
+            return false
+        }
+
+        const data: ITokens = await responce.json()
+
+        store.setAuth(true, data)
+
+        return true
+    }
+
+
     const Login = async (loginData: UserLoginDTO) => {
         const responce = await fetch(ADDRESS + LOGIN_PATH, {
             method: "POST",
@@ -15,10 +45,9 @@ export const AuthService = (store: AuthStore) => {
         if (!responce.ok) return false
 
         const data: ITokens = await responce.json()
-        
-        store.setAccess(data.accessToken);
-        store.setRefresh(data.refreshToken);
-        store.setIsAuth(true)
+
+        store.setAuth(true, data)
+
         return true;
     }
 
@@ -38,10 +67,10 @@ export const AuthService = (store: AuthStore) => {
         return true
     }
 
-    const SignOut = async () => {
-        store.setIsAuth(false)
+    const SignOut = () => {
+        store.setAuth(false)
     }
 
-    return { Login, Register, SignOut }
+    return { Login, Register, SignOut, VerifyRefreshToken }
 
 }

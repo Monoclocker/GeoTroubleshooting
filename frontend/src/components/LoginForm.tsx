@@ -90,7 +90,7 @@ export default function LoginForm() {
                     <Button type="primary" htmlType="submit" loading={isLoading}>Войти</Button>
                 </Form.Item>
                 <Form.Item>
-                    <Link to="/">
+                    <Link to="/register">
                         <Button type="primary">
                             Перейти к регистрации
                         </Button>

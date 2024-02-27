@@ -1,26 +1,40 @@
 import { makeAutoObservable } from "mobx"
 
 export class AuthStore {
-    accessToken?: string
-    refreshToken?: string
-    isAuth?: boolean
+    user = {} as IUser
+    isAuth?: boolean = false
 
     constructor() {
         makeAutoObservable(this)
     }
 
-    setAccess(newAccess: string) {
-        this.accessToken = newAccess;
+    get getUser() {
+        return { ...this.user }
     }
 
-    setRefresh(newRefresh: string) {
-        this.refreshToken = newRefresh; 
+    get getAuth() {
+        return this.isAuth
     }
 
-    setIsAuth(newIsAuth: boolean) {
-        this.isAuth = newIsAuth
+
+    setAuth(isAuth: boolean, tokens?: ITokens) {
+
+        this.isAuth = isAuth
+
+        if (isAuth && tokens) {
+            localStorage.setItem("accessToken", tokens.accessToken)
+            localStorage.setItem("refreshToken", tokens.refreshToken)
+        }
+
+        else {
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+        }
     }
 
+    setUser(user: IUser) {
+        this.user = user
+    }
 
 
 

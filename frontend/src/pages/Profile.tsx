@@ -1,11 +1,11 @@
-import { useEffect } from "react"
+import UserProfile from "../components/UserProfile"
 
 function Profile() {
 
 
     return (
         <>
-            
+            <UserProfile/>
         </>
     )
 }
