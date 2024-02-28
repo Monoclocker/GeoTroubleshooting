@@ -22,6 +22,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpGet("Info")]
+        [ProducesResponseType(typeof(UserInfoDTO), 200)]
         public async Task<IActionResult> GetUserInfo()
         {
             User? user = await _userManager.FindByNameAsync(User.Claims.Where(x => x.Type == ClaimTypes.Name).First().Value);
@@ -39,6 +40,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("Info/{id}")]
+        [ProducesResponseType(typeof(UserInfoDTO), 200)]
         public async Task<IActionResult> GetUserInfoById(int id)
         {
             User? user = await _userManager.FindByIdAsync(id.ToString());
