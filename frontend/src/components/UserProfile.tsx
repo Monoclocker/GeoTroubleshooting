@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useStores } from "./RootContext";
 import { UserService } from "../services/UserService";
 import { useNavigate } from "react-router";
 import { observer } from "mobx-react-lite";
+import { Descriptions, DescriptionsProps } from "antd";
+import Item from "antd/es/list/Item";
 
 const UserProfile = observer(() => {
 
@@ -12,27 +14,38 @@ const UserProfile = observer(() => {
     const { getUserInfo } = UserService(authStore)
 
    useEffect(() => {
-        const loadData = async () => {
+       const loadData = async () => {
 
-            if (!await getUserInfo()) {
+            if (Object.keys(authStore?.getUser).length === 0 && !await getUserInfo()) {
                 navigate("/")
             }
 
-           
-
-            console.log(authStore.getUser)
             setUser(authStore.getUser)
-            console.log(authStore.getUser)
         }
 
         loadData();
        
-    }, [])
+   }, [])
+
+    const items: DescriptionsProps['items'] = [
+        {
+            key: '1',
+            label: "Имя пользователя",
+            children: user.userName
+        },
+        {
+            key: '2',
+            label: "Электронная почта",
+            children: user.email
+        },
+    ]
+   
+
 
     return (
         <>
-            <p>{user.email}</p>
-            <p>{user.userName}</p>
+
+            <Descriptions title="Контактные данные" layout="vertical" items={items} />
         </>
     );
 

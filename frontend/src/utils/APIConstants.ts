@@ -8,3 +8,4 @@ export const VERIFY_PATH: string = "Auth/Refresh"
 
 export const USERINFO_PATH: string = "User/Info"
 
+export const KEY_PATH: string = "Auth/ApiKey"

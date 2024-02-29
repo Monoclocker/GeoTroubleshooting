@@ -15,21 +15,29 @@ export default function LoginForm() {
     async function OnFinished(values: UserRegistrationDTO) {
 
         setLoading(true)
+        try {
+            if (!await Login(values)) {
+                api.error({
+                    message: "Произошла ошибка",
+                    placement: 'top'
+                })
+            }
 
-        if (!await Login(values)) {
-            api.error({
-                message: "Пользователя не существует",
-                placement: 'top'
-            })
-        }
+            else {
+                navigate("dashboard/profile")
+            }
 
-        else {
-            navigate("/profile")
+            setLoading(false)
+
         }
+        catch {
+            setLoading(false)
+        }
+        
             
         
 
-        setLoading(false)
+        
     }
 
     return (

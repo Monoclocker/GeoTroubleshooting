@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Amazon.Runtime.Internal;
+using System.Text;
 
 namespace Backend.Controllers
 {
@@ -80,10 +81,13 @@ namespace Backend.Controllers
             });
         }
 
+        public record RefreshToken (string refreshToken);
+
         [HttpPost("Refresh")]
-        public async Task<IActionResult> Refresh([FromBody]string refreshToken)
+        public async Task<IActionResult> Refresh(RefreshToken DTO)
         {
-            ClaimsPrincipal? principal = _tokenService.ValidateRefreshToken(refreshToken, _configuration);
+
+            ClaimsPrincipal? principal = _tokenService.ValidateRefreshToken(DTO.refreshToken, _configuration);
 
             if (principal is null || !principal.HasClaim(x => x.Type == ClaimTypes.Name))
             {
@@ -92,7 +96,7 @@ namespace Backend.Controllers
 
             string? userName = principal.Claims.Where(x => x.Type == ClaimTypes.Name).First().Value;
 
-            User? claimUser = await _userManager.FindByNameAsync(userName);
+            User? claimUser = await _userManager.FindByNameAsync(userName);;
 
             if (claimUser is null)
             {

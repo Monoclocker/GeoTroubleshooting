@@ -112,7 +112,7 @@ export default function RegisterForm(){
                     <Button type="primary" htmlType="submit" loading={isLoading}>Зарегистрироваться</Button>
                 </Form.Item>
                 <Form.Item>
-                    <Link to="/register">
+                    <Link to="login">
                         <Button type="primary">
                             Перейти к авторизации
                         </Button>
