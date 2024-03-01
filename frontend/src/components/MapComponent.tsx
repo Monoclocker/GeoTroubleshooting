@@ -1,19 +1,14 @@
+import dotenv from "dotenv"
 import { YMap, YMapComponentsProvider, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer } from "ymap3-components"
-import { useStores } from "./RootContext"
-import { AuthService } from "../services/AuthService"
-import { useEffect } from "react"
- 
+
+dotenv.config()
+
 const MapComponent = () => {
 
-    useEffect(() => {
-        async () => {
-            GetApiKey()
-            console.log(keyStore.mapsKey)
-        }
-    })
+    console.log(process.env.REACT_APP_API_KEY)
 
     return (
-        <YMapComponentsProvider apiKey={//придумать как сюда подставлять ключ} >
+        <YMapComponentsProvider apiKey={process.env.REACT_APP_API_KEY as string} >
             <YMap location={{ center: [48.43, 133.23], zoom: 5 }}> 
                 <YMapDefaultSchemeLayer />
                 <YMapDefaultFeaturesLayer />
