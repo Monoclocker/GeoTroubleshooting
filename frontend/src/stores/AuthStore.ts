@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx"
+import { IUser } from "../vite-env"
 
 export class AuthStore {
     user = {} as IUser

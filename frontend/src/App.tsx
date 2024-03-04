@@ -21,8 +21,6 @@ function App() {
                         <Route path="profile" element={<Profile />} />
                         <Route path="map" element={<MapDashboard />} />
                     </Route>
-                   
-
                 </Routes>
             </BrowserRouter>
         </RootContext.Provider>

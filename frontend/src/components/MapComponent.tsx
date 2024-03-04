@@ -1,41 +1,43 @@
-import { DomEvent, DomEventHandler, DomEventHandlerObject, LngLat } from "@yandex/ymaps3-types";
-import { Spin } from "antd"
-import { useState } from "react";
+//import { useState } from "react";
+import { DomEvent, DomEventHandlerObject, LngLat } from "@yandex/ymaps3-types"
 import { YMap, YMapComponentsProvider, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener } from "ymap3-components"
 
-const MapComponent = () => {
+interface Props {
+    updateProps: (event: DomEvent) => void
+}
 
-    const [markers, setMarker] = useState<LngLat[]>([])
+
+const MapComponent = (props: Props) => {
+
+    //const [markers, setMarker] = useState<LngLat[]>([])
 
     function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
-        setMarker(oldMarkers => [...oldMarkers, event.coordinates])
+        props.updateProps(event)
+        console.log(event.coordinates)
     }
 
-    const [isLoading, setIsLoading] = useState(true);
+    //const [isLoading, setIsLoading] = useState(true);
 
     return (
-        
-        <>
-            <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}
-                onLoad={() => setIsLoading(false)}
-            >
-                <YMap location={{ zoom: 5}}
+
+        <div style={{ width: '500px', height:'500px' }}>
+            <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
+                <YMap location={{ center: [40, 13], zoom: 2 }}
                 >
-                    <YMapDefaultSchemeLayer/>
+                    <YMapDefaultSchemeLayer theme="dark" />
                     <YMapDefaultFeaturesLayer />
                     <YMapListener
                         layer='any'
                         onClick={clickHandler}
                     />
 
-                    {markers.map(marker => {
-                        return <YMapDefaultMarker coordinates={marker} title="Rew"></YMapDefaultMarker>
-                    })}
-
-                    <YMapDefaultMarker coordinates={[-60.3, -10.5]} title="Rew"></YMapDefaultMarker>
+                    {/*{markers.map(marker => {*/}
+                    {/*    return <YMapDefaultMarker coordinates={marker} title="Rew"></YMapDefaultMarker>*/}
+                    {/*})}*/}
+                    
                 </YMap>
             </YMapComponentsProvider>
-        </>
+        </div>
         
         
     )

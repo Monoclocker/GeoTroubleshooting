@@ -4,6 +4,7 @@ import { useNavigate } from "react-router"
 import { Link } from "react-router-dom"
 import { useStores } from "./RootContext"
 import { AuthService } from "../services/AuthService"
+import { UserLoginDTO } from "../vite-env"
 export default function LoginForm() {
 
     const { authStore } = useStores()
@@ -12,7 +13,7 @@ export default function LoginForm() {
     const [isLoading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification()
 
-    async function OnFinished(values: UserRegistrationDTO) {
+    async function OnFinished(values: UserLoginDTO) {
 
         setLoading(true)
         try {

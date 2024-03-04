@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import { LngLat } from "@yandex/ymaps3-types"
+
 type UserRegistrationDTO = {
     Username: string,
     Password: string,
@@ -11,6 +13,12 @@ type UserLoginDTO = {
     Password: string
 }
 
+interface IMarkerInfo {
+    username: string,
+    coordinates: LngLat,
+    title: string,
+    description?: string
+}
 
 interface ITokens {
     accessToken: string,
