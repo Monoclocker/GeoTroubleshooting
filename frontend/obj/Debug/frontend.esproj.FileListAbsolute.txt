@@ -1,2 +1,0 @@
-D:\Projects\GeoTroubleShooting\frontend\obj\Debug\frontend.esproj.CoreCompileInputs.cache
-C:\Projects\Monoclocker\GeoTroubleShooting\frontend\obj\Debug\frontend.esproj.CoreCompileInputs.cache
