@@ -1,5 +1,4 @@
 
-import type { IUser } from "../types/IUser";
 import { ADDRESS, USERINFO_PATH } from "../utils/APIPath";
 import { AuthService } from "./AuthService";
 
@@ -9,7 +8,7 @@ export const UserService = () => {
 
     const {VerifyRefreshToken} = AuthService()
 
-    const getUserInfo = (): Promise<IUser> => {
+    const getUserInfo = (): Promise<Response> => {
         
         return fetch(ADDRESS + USERINFO_PATH, {
             method: "GET",
@@ -18,14 +17,15 @@ export const UserService = () => {
                 "Accept": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
-        }).then((response) =>{
+        }).then(async (response) =>{
 
             if (response.status == 200){
-                
-                return response.json()
+                return response.json().then((data)=>{
+                    return data
+                })
             }
 
-            if(response.status == 401 && !VerifyRefreshToken(localStorage.getItem("refreshToken"))){
+            if(response.status==401 && !await VerifyRefreshToken(localStorage.getItem("refreshToken"))){
                 throw new Error()
             }
 

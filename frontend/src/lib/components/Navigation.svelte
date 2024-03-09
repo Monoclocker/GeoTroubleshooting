@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Collapse, Nav, NavItem, Navbar, NavbarBrand, NavbarToggler } from "@sveltestrap/sveltestrap";
+    import { Collapse, Nav, NavItem, NavLink, Navbar, NavbarBrand, NavbarToggler } from "@sveltestrap/sveltestrap";
     import { Link } from "svelte-routing";
  
     let isOpen = false
