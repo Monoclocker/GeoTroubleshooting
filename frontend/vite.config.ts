@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import react from '@vitejs/plugin-react'
+import dotenv from 'dotenv'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
+    plugins: [react()],
+    define: {
+        "process.env.VITE_MAP_API_KEY": JSON.stringify(process.env.VITE_MAP_API_KEY)
+    }
 })

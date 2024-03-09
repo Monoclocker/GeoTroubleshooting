@@ -1,5 +1,24 @@
-/// <reference types="svelte" />
 /// <reference types="vite/client" />
+
+import { LngLat } from "@yandex/ymaps3-types"
+
+type UserRegistrationDTO = {
+    Username: string,
+    Password: string,
+    Email: string
+}
+
+type UserLoginDTO = {
+    Username: string,
+    Password: string
+}
+
+interface IMarkerInfo {
+    username: string,
+    coordinates: LngLat,
+    title: string,
+    description?: string
+}
 
 interface ITokens {
     accessToken: string,
@@ -8,6 +27,5 @@ interface ITokens {
 
 interface IUser {
     userName: string,
-    password?: string
-    email?: string
+    email: string
 }

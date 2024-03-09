@@ -16,6 +16,7 @@ namespace Backend.Tests
     [TestClass]
     public class AuthControllerTests
     {
+        //разобраться в написании тестов
         [TestMethod]
         public async Task AddUserWithBadModelStateReturnsBadRequest()
         {
