@@ -1,7 +1,9 @@
 <script lang="ts">
-    import { Form, FormGroup, Input, Button, Alert} from "@sveltestrap/sveltestrap";
+    import { Form, FormGroup, InputGroup, InputGroupText, Input, Button, Alert} from "@sveltestrap/sveltestrap";
     import { AuthService } from "../services/AuthService";
-    import { navigate, Link } from "svelte-routing"
+    import { navigate} from "svelte-routing"
+    import type { IUser } from "../types/IUser";
+    import type { ITokens } from "../types/ITokens";
 
     let user: IUser = {
         userName:"",
@@ -12,6 +14,7 @@
 
     let validated = false
     let notificationOpened = false
+    let showPassword = false
 
     const handleAuthorization = async(event: SubmitEvent) =>{
         event.preventDefault()
@@ -44,7 +47,7 @@
 </script>
 
 <Form {validated} on:submit={handleAuthorization}>
-    <FormGroup floating label="Имя пользователя">
+    <FormGroup>
         <Input 
             type="text"
             placeholder = "Введите имя пользователя"
@@ -53,13 +56,19 @@
         />
     </FormGroup>
 
-    <FormGroup floating label="Пароль">
-        <Input 
-            placeholder = "Введите пароль" 
-            type="password" 
-            required
-            bind:value={user.password}
-        />
+    <FormGroup>
+        <InputGroup>
+            <Input 
+                placeholder = "Введите пароль" 
+                type={showPassword ? "text":"password" }
+                required
+                bind:value={user.password}
+                />
+            <InputGroupText>
+                <Input type="checkbox" bind:checked={showPassword}/>
+                показать
+            </InputGroupText>
+        </InputGroup>
     </FormGroup>
 
     <Button type="submit" color="primary" on:click={() => validated = true}>

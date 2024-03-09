@@ -1,16 +1,18 @@
 
+import type { ITokens } from "../types/ITokens"
+import type { IUser } from "../types/IUser"
 import { ADDRESS, LOGIN_PATH, REGISTER_PATH, VERIFY_PATH } from "../utils/APIPath"
 
 export const AuthService = () => {
 
-    const VerifyRefreshToken = async (refreshToken: string|null) => {
+    const VerifyRefreshToken = (refreshToken: string|null) => {
 
         if (refreshToken == null) {
 
             return false
         }
 
-        const responce = await fetch(ADDRESS + VERIFY_PATH, {
+        fetch(ADDRESS + VERIFY_PATH, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -18,15 +20,25 @@ export const AuthService = () => {
             },
             body: JSON.stringify({ "refreshToken": refreshToken })
         })
+        .then((responce) => {
+            if (responce.status == 400) {
+                return false
+            }
 
-        if (responce.status == 400) {
-            SignOut()
+            responce.json().then((data)=>{
+                const {accessToken, refreshToken}: ITokens = data as ITokens
+                localStorage.setItem("accessToken", accessToken)
+                localStorage.setItem("refreshToken", refreshToken)
+            })
+
+            return true
+
+        })
+        .catch(()=>{
             return false
-        }
+        })
 
-        const data: ITokens = await responce.json()
-
-        return true
+        
     }
 
 

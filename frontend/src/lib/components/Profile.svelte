@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Progress } from "@sveltestrap/sveltestrap";
-import { UserService } from "../services/UserService";
+    import { UserService } from "../services/UserService";
 
 
     const {getUserInfo} = UserService()
@@ -10,9 +10,9 @@ import { UserService } from "../services/UserService";
 </script>
 
 {#await promise}
-    <Progress value={20}></Progress>
+    <Progress value={50}></Progress>
 {:then responce}
-    {responce}
+    {responce.userName}
 {:catch}
     <p>error</p>
     

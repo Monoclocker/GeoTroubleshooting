@@ -2,6 +2,7 @@
     import { Form, FormGroup, Input, Button, Alert} from "@sveltestrap/sveltestrap";
     import { AuthService } from "../services/AuthService";
     import { navigate, Link } from "svelte-routing"
+    import type { IUser } from "../types/IUser";
 
     let user: IUser = {
         userName:"",
