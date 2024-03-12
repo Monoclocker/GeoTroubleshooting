@@ -1,4 +1,5 @@
 using Backend.Data;
+using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -59,6 +60,10 @@ namespace Backend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSignalR(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromMinutes(2);
+            });
 
             var app = builder.Build();
 
@@ -97,8 +102,8 @@ namespace Backend
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
+            app.MapHub<ChatHub>("/chat");
 
             app.Run();
         }

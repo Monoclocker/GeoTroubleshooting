@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="public\" />
-    <Folder Include="src\services\" />
+    <Folder Include="src\modules\profile-module\services\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptConfiguration Remove="src\assets\Новая папка\**" />

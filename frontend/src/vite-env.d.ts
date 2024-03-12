@@ -1,17 +1,7 @@
 /// <reference types="vite/client" />
 
 import { LngLat } from "@yandex/ymaps3-types"
-
-type UserRegistrationDTO = {
-    Username: string,
-    Password: string,
-    Email: string
-}
-
-type UserLoginDTO = {
-    Username: string,
-    Password: string
-}
+ 
 
 interface IMarkerInfo {
     username: string,
@@ -27,5 +17,6 @@ interface ITokens {
 
 interface IUser {
     userName: string,
-    email: string
+    email?: string
+    password?: string
 }

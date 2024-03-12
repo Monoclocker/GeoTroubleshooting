@@ -1,12 +1,10 @@
-import { AuthStore } from "./AuthStore"
+import { AuthStore } from "../modules/auth-module/exports";
+import { UserStore } from "../modules/profile-module/exports";
 
 class RootStore {
 
-    authStore: AuthStore
-
-    constructor() {
-        this.authStore = new AuthStore()
-    }
+    authStore = new AuthStore()
+    userStore = new UserStore()
 }
 
 export default RootStore;
