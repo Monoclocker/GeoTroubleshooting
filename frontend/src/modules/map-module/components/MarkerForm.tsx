@@ -1,46 +1,42 @@
-import { Form } from "antd"
-import { IMarkerInfo } from "../vite-env"
+﻿import { Button, Form } from "antd"
 import Input from "antd/es/input/Input"
-import { LngLat } from "@yandex/ymaps3-types"
-import { useState } from "react"
+import { IMarkerInfo } from "../../../vite-env"
+import { observer } from "mobx-react-lite"
+import { useStores } from "../../../hooks/RootContext"
+import MapHub from "../services/MapHub"
 
-interface Props {
-    coordinates: LngLat,
-    username: string
-}
+export const MarkerForm = observer(() => {
 
-export const MarkerForm = (props: Props) => {
-
-    const [values] = useState<Props>(props)
-
-    console.log(values)
+    const { mapStore, userStore } = useStores()
+    const { connection } = MapHub()
 
     const Finish = (values: IMarkerInfo) => {
+
+        values.coordinates = mapStore.Marker
+        values.username = userStore.User.userName
+
         console.log(values)
+
+        connection.invoke("AddMarker", values)
+            .then(() => {
+                mapStore.addMarker(values)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     }
+
 
     return (
         <>
-            <Form onFinish={Finish}>
+            <Form
+                onFinish={Finish}
+            >
                 <Form.Item<IMarkerInfo>
                     label="username"
                     name="username"
                 >
-                    <Input disabled defaultValue={values.username}></Input>
-                </Form.Item>
-
-                <Form.Item<IMarkerInfo>
-                    label="x"
-                    name={["coordinates", 0]}
-                >
-                    <Input disabled defaultValue={values.coordinates[0]} />
-                </Form.Item>
-
-                <Form.Item<IMarkerInfo>
-                    label="y"
-                    name={["coordinates", 1]}
-                >
-                    <Input disabled defaultValue={values.coordinates[1]} />
+                    <Input disabled defaultValue={userStore.User.userName}></Input>
                 </Form.Item>
 
                 <Form.Item<IMarkerInfo>
@@ -57,7 +53,14 @@ export const MarkerForm = (props: Props) => {
                     <Input />
                 </Form.Item>
 
+                <Form.Item>
+                    <Button htmlType="submit" type="primary">Сохранить</Button>
+                </Form.Item>
+                <Form.Item>
+                    <Button onClick={() => { mapStore.showForm(false) }} type="primary">Закрыть форму</Button>
+                </Form.Item>
+
             </Form>
         </>
     )
-}
+})

@@ -1,5 +1,7 @@
 ﻿using Backend.Models;
 using Microsoft.AspNetCore.Identity;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Backend.Data
 {
@@ -9,7 +11,8 @@ namespace Backend.Data
         public async static Task Initialize(
             ConfigurationManager _configuration,
             RoleManager<IdentityRole<int>> _roleManager,
-            UserManager<User> _userManager)
+            UserManager<User> _userManager,
+            MongoClient _mongo)
         {
             if (await _roleManager.FindByNameAsync("admin") is null)
             {
@@ -34,6 +37,19 @@ namespace Backend.Data
                 }
 
             }
+
+            var db = _mongo.GetDatabase(_configuration["Mongo:Database"]);
+
+            if (db.GetCollection<BsonDocument>(_configuration["Mongo:MarkersCollection"]) is null)
+            {
+                await db.CreateCollectionAsync(_configuration["Mongo:MarkersCollection"]);
+            }
+
+            if (db.GetCollection<BsonDocument>(_configuration["Mongo:ChatCollection"]) is null)
+            {
+                await db.CreateCollectionAsync(_configuration["Mongo:ChatCollection"]);
+            }
+
         }
 
 

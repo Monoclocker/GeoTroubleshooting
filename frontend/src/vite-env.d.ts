@@ -20,3 +20,14 @@ interface IUser {
     email?: string
     password?: string
 }
+
+interface IMessage {
+    username: string,
+    timestamp: Date,
+    content: string
+}
+
+interface IGroup {
+    id: string,
+    name: string
+}

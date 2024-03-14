@@ -3,6 +3,7 @@ using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,7 +55,7 @@ namespace Backend
                     };
                 });
 
-            //builder.Services.AddSingleton(new MongoClient(builder.Configuration["MongoDatabase"]));
+            builder.Services.AddSingleton(new MongoClient(builder.Configuration["Mongo:Connection"]));
             
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -93,17 +94,21 @@ namespace Backend
             }
 
             app.UseHttpsRedirection();
+
             app.UseCors(options =>
             {
                 options.AllowAnyHeader();
                 options.AllowAnyMethod();
                 options.AllowAnyOrigin();
             });
+
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapHub<MapHub>("/map");
             app.MapControllers();
-            app.MapHub<ChatHub>("/chat");
+            //app.MapHub<ChatHub>("/chat");
+            
 
             app.Run();
         }

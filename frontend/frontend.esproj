@@ -10,6 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="public\" />
+    <Folder Include="src\modules\chat-module\stores\" />
+    <Folder Include="src\modules\map-module\stores\" />
     <Folder Include="src\modules\profile-module\services\" />
   </ItemGroup>
   <ItemGroup>

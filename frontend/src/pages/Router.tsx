@@ -3,6 +3,7 @@ import { LoginPage, RegistrationPage } from "../modules/auth-module/exports"
 import { DashboardPage } from "../modules/dashboard-module/exports"
 import { Profile } from "../modules/profile-module/exports"
 import { MapPage } from "../modules/map-module/exports"
+import { ChatPage } from "../modules/chat-module/exports"
 
 export const AppRouter = () => {
 
@@ -15,6 +16,7 @@ export const AppRouter = () => {
                 <Route path="dashboard" element={<DashboardPage />}>
                     <Route path="profile" element={<Profile />} />
                     <Route path="map" element={<MapPage />} />
+                    <Route path="chat/:id?" element={<ChatPage/>} />
                 </Route>
             </Routes>
         </BrowserRouter>
