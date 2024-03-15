@@ -82,8 +82,9 @@ namespace Backend
                         var configuration = builder.Configuration;
                         var userManager = services.GetService<UserManager<User>>();
                         var roleManager = services.GetService<RoleManager<IdentityRole<int>>>();
+                        var mongo = services.GetService<MongoClient>();
 
-                        await Initializer.Initialize(configuration, roleManager!, userManager!);
+                        await Initializer.Initialize(configuration, roleManager!, userManager!, mongo!);
                     }
                     catch (Exception ex)
                     {
