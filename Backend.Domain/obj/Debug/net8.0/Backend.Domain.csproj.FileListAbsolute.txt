@@ -1,0 +1,13 @@
+D:\Projects\GeoTroubleShooting\Backend.Domain\bin\Debug\net8.0\Backend.Domain.deps.json
+D:\Projects\GeoTroubleShooting\Backend.Domain\bin\Debug\net8.0\Backend.Domain.dll
+D:\Projects\GeoTroubleShooting\Backend.Domain\bin\Debug\net8.0\Backend.Domain.pdb
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.csproj.AssemblyReference.cache
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.AssemblyInfoInputs.cache
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.AssemblyInfo.cs
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.csproj.CoreCompileInputs.cache
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.sourcelink.json
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.dll
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\refint\Backend.Domain.dll
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\Backend.Domain.pdb
+D:\Projects\GeoTroubleShooting\Backend.Domain\obj\Debug\net8.0\ref\Backend.Domain.dll

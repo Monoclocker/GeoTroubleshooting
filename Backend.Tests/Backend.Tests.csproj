@@ -18,7 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Backend\Backend.csproj" />
+    <ProjectReference Include="..\Backend.API\Backend.API.csproj" />
+    <ProjectReference Include="..\Backend.Application\Backend.Application.csproj" />
+    <ProjectReference Include="..\Backend.Domain\Backend.Domain.csproj" />
+    <ProjectReference Include="..\Backend.External\Backend.External.csproj" />
   </ItemGroup>
 
 </Project>
