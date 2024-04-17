@@ -1,4 +1,4 @@
-﻿namespace Backend.Application.DTO
+﻿namespace Backend.Application.DTO.Token
 {
     public class TokensDTO
     {

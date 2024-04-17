@@ -1,4 +1,4 @@
-export const ADDRESS: string = "http://localhost:5293/api/v1/"
+export const ADDRESS: string = "http://localhost:5078/api/v1/"
 
 export const LOGIN_PATH: string = "Auth/Login"
 
@@ -12,4 +12,4 @@ export const KEY_PATH: string = "Auth/ApiKey"
 
 export const GETGROUPS_PATH: string = "Groups"
 
-export const MAPHUB_PATH: string = "http://localhost:5293/map"
+export const MAPHUB_PATH: string = "http://localhost:5078/map"

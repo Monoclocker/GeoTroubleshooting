@@ -16,9 +16,9 @@ interface ITokens {
 }
 
 interface IUser {
-    userName: string,
-    email?: string
-    password?: string
+    UserName: string,
+    Email?: string
+    Password?: string
 }
 
 interface IMessage {
