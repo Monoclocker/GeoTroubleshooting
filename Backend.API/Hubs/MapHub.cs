@@ -1,4 +1,5 @@
-﻿using Backend.Domain;
+﻿using Backend.Application.DTO.Marker;
+using Backend.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -7,36 +8,33 @@ namespace Backend.Hubs
 {
     public class MapHub: Hub
     {
-        //readonly IMongoDatabase _mongo;
-        //readonly IConfiguration _configuration;
+        readonly IMapMarkerService markerService;
+        readonly IConfiguration configuration;
 
-        //public MapHub(MongoClient mongo, IConfiguration configuration) 
-        //{ 
-        //    _configuration = configuration;
-        //    _mongo = mongo.GetDatabase(_configuration["Mongo:Database"]);
-        //}
+        public MapHub(IMapMarkerService _markerService, IConfiguration _configuration)
+        {
+            configuration = _configuration;
+            markerService = _markerService;
+        }
 
-        //public async Task GetMarkers()
-        //{
-        //    var markers = await _mongo.GetCollection<MapMarker>(_configuration["Mongo:MarkersCollection"])
-        //        .Find(new BsonDocument())
-        //        .ToListAsync();
+        public async Task GetMarkers()
+        {
+            var markers = await markerService.GetMarkersAsync();
 
-        //    await Clients.Caller.SendAsync("InitMarkers", markers.Take(50));
-        //}
+            await Clients.Caller.SendAsync("InitMarkers", markers);
+        }
 
-        //public async Task AddMarker(MapMarker marker)
-        //{
-        //    await _mongo.GetCollection<MapMarker>(_configuration["Mongo:MarkersCollection"])
-        //        .InsertOneAsync(marker);
+        public async Task AddMarker(MarkerDTO marker)
+        {
+            await markerService.AddMarkerAsync(marker);
 
-        //    await Clients.AllExcept(Context.ConnectionId).SendAsync("NewMarker", marker);
-        //}
+            await Clients.AllExcept(Context.ConnectionId).SendAsync("NewMarker", marker);
+        }
 
-        //public override Task OnDisconnectedAsync(Exception? exception)
-        //{
-        //    return base.OnDisconnectedAsync(exception);
-        //}
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            return base.OnDisconnectedAsync(exception);
+        }
 
     }
 }

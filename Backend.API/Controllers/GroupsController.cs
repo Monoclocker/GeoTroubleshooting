@@ -1,7 +1,7 @@
-﻿
-using Backend.Domain;
+﻿using Backend.Application.DTO.Group;
+using Backend.Application.Exceptions;
+using Backend.Application.Interfaces;
 using Backend.External.Data;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,48 +14,37 @@ namespace Backend.Controllers
     [Authorize]
     public class GroupsController : ControllerBase
     {
-        //readonly DatabaseContext _context;
-        //readonly UserManager<User> _userManager;
+        readonly IGroupService groupService;
+        readonly IConfiguration configuration;
 
-        //public GroupsController(DatabaseContext context, UserManager<User> userManager) 
-        //{
-        //    _context = context;
-        //    _userManager = userManager;
-        //}
+        public GroupsController(IConfiguration _configuration, IGroupService _groupService)
+        {
+            configuration = _configuration;
+            groupService = _groupService;
+        }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAllGroups()
-        //{
-        //    User? user = await _userManager.FindByNameAsync(User.Claims.Where(claim => claim.Type == ClaimTypes.Name).First().Value);
+        [Authorize]
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAllGroups(int userId)
+        {
+            List<GroupPublicDTO> groups = await groupService.GetGroupsAsync(userId);
 
-        //    List<Group> groups = user!.Groups.ToList();
+            return Ok(groups);
+        }
 
-        //    return Ok(groups);
-        //}
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup(GroupCreateDTO dto)
+        {
+            try
+            {
+                await groupService.CreateGroupAsync(dto);
+            }
+            catch (UnknownUserException userException)
+            {
+                return BadRequest(userException.Message);
+            }
 
-        //[HttpPost]
-        //public async Task<IActionResult> CreateGroup(string groupName)
-        //{
-        //    if (_context.Groups.Where(x=>x.name == groupName).Count() != 0)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    Group group = new Group()
-        //    {
-        //        name = groupName,
-        //        Users = new List<User>()
-        //    };
-
-        //    User? user = await _userManager.FindByNameAsync(User.Claims.Where(claim => claim.Type == ClaimTypes.Name).First().Value);
-
-        //    group.Users.Add(user!);
-
-        //    await _context.Groups.AddAsync(group);
-
-        //    await _context.SaveChangesAsync();
-
-        //    return Ok();
-        //}
+            return Ok();
+        }
     }
 }

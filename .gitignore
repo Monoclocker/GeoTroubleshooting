@@ -404,3 +404,4 @@ FodyWeavers.xsd
 /Backend.External/Data/Migrations
 /.vs
 /frontend/.env
+/Backend.External/Migrations

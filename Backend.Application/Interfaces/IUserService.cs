@@ -1,19 +1,18 @@
-﻿using Backend.Application.DTO;
-using Backend.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Backend.Application.DTO.Token;
+using Backend.Application.DTO.User;
+using System.Security.Claims;
 
 namespace Backend.Application.Interfaces
 {
     public interface IUserService
     {
-        public bool TryLogin(UserLoginDTO dto);
-        public UserInfoDTO GetUserInfo(UserLoginDTO dto);
-        public bool AddUser(UserRegistrationDTO dto);
-        public bool UpdateUser(User user);
-        public bool DeleteUser(User user);
+        public Task<TokensDTO> TryLoginAsync(UserLoginDTO dto);
+        public Task TryConfirmEmailAsync(string email, string token);
+        public Task GenerateEmailConfirmation(UserPublicDTO dto);
+        public Task<UserPublicDTO> GetUserInfoAsync(string username);
+        public Task RegisterUserAsync(UserRegistrationDTO dto);
+        public Task UpdateUserAsync(UserPublicDTO dto);
+        public Task DeleteUserByIdAsync(int id);
+        public Task<TokensDTO> RefreshTokensAsync(ClaimsPrincipal? claims);
     }
 }

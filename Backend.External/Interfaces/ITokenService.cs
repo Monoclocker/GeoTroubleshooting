@@ -1,12 +1,12 @@
-﻿using Backend.Domain;
-using Microsoft.Extensions.Configuration;
+﻿using Backend.Application.DTO.User;
 using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
 
-namespace Backend.External.Services
+namespace Backend.Application.Interfaces
 {
     public interface ITokenService
     {
-        public string GenerateAccessToken(User user, IList<string> userRoles, IConfiguration configuration);
+        public string GenerateAccessToken(UserPublicDTO user, IList<string> userRoles, IConfiguration configuration);
 
         public string GenerateRefreshToken(string username, IConfiguration configuration);
 

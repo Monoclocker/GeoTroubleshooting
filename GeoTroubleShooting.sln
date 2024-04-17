@@ -15,13 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C24F1717-1603-4496-A5B1-E09B244A7247}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Domain", "Backend.Domain\Backend.Domain.csproj", "{D9BF74B6-5136-49B1-BBF5-6C753F94C8AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Domain", "Backend.Domain\Backend.Domain.csproj", "{D9BF74B6-5136-49B1-BBF5-6C753F94C8AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.Application", "Backend.Application\Backend.Application.csproj", "{0BD5F0C7-428F-43E7-BFAF-8D92A70D6E2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.Application", "Backend.Application\Backend.Application.csproj", "{0BD5F0C7-428F-43E7-BFAF-8D92A70D6E2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.External", "Backend.External\Backend.External.csproj", "{0B3D47BB-649C-4D18-9DDA-F95FE45FDB0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.External", "Backend.External\Backend.External.csproj", "{0B3D47BB-649C-4D18-9DDA-F95FE45FDB0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend.API", "Backend.API\Backend.API.csproj", "{51CD5FEC-7DD1-4F7E-AB67-DC77C17B2A01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend.API", "Backend.API\Backend.API.csproj", "{51CD5FEC-7DD1-4F7E-AB67-DC77C17B2A01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

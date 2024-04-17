@@ -1,4 +1,5 @@
-﻿using Backend.Domain;
+﻿using Backend.Application.DTO.User;
+using Backend.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +12,7 @@ namespace Backend.External.Services
     {
         public JwtTokenService() { }
 
-        public string GenerateAccessToken(User user, IList<string> userRoles, IConfiguration configuration)
+        public string GenerateAccessToken(UserPublicDTO user, IList<string> userRoles, IConfiguration configuration)
         {
             List<Claim> userClaims = new List<Claim>()
             {
@@ -28,7 +29,6 @@ namespace Backend.External.Services
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Issuer = configuration["jwt:Issuer"],
-                Audience = configuration["jwt:Audience"],
                 Expires = DateTime.UtcNow.AddMinutes(10),
                 Claims = userClaims.ToDictionary(claim => claim.Type, claim => (object)claim.Value),
                 SigningCredentials = new SigningCredentials(
@@ -48,7 +48,6 @@ namespace Backend.External.Services
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Issuer = configuration["jwt:Issuer"],
-                Audience = configuration["jwt:Audience"],
                 Expires = DateTime.UtcNow.AddDays(30),
                 Claims = new List<Claim>()
                 {
@@ -72,11 +71,10 @@ namespace Backend.External.Services
             {
                 ClockSkew = TimeSpan.FromSeconds(0),
                 ValidateIssuer = true,
-                ValidateAudience = true,
                 ValidateLifetime = true,
+                ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration["jwt:Issuer"],
-                ValidAudience = configuration["jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:Key"]!))
             };
 

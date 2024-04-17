@@ -1,8 +1,8 @@
-﻿using Backend.Domain;
+﻿using Backend.Application.Interfaces;
+using Backend.Domain;
 using Backend.External.Data;
 using Backend.External.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Text;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Backend.External
 {
@@ -34,7 +33,10 @@ namespace Backend.External
             })
                 .AddEntityFrameworkStores<DatabaseContext>();
 
-            services.AddTransient<ITokenService, JwtTokenService>();
+            services.AddScoped<ITokenService, JwtTokenService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IMapMarkerService, MapMarkerService>();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,15 +49,14 @@ namespace Backend.External
                     {
                         ClockSkew = TimeSpan.FromSeconds(0),
                         ValidateIssuer = true,
-                        ValidateAudience = true,
+                        ValidateAudience = false,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = configuration["jwt:Issuer"],
-                        ValidAudience = configuration["jwt:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:Key"]!))
                     };
                 });
-
+            Console.WriteLine(configuration["jwt:Audience"]);
             services.AddSingleton(new MongoClient(configuration["Mongo:Connection"]));
 
             return services;
