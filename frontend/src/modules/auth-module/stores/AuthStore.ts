@@ -1,45 +1,49 @@
 import { makeAutoObservable } from "mobx"
-import { ITokens, IUser } from "../../../vite-env"
 import { Login, Register } from "../services/AuthService"
+import TokensDTO from "../../../models/Auth/TokensDTO"
+import UserRegistrationDTO from "../../../models/Auth/UserRegistrationDTO"
+import UserLoginDTO from "../../../models/Auth/UserLoginDTO"
 
 export class AuthStore {
 
-    isAuth: boolean = false
-
-    constructor() {
-        makeAutoObservable(this)
-    }
-
     checkAuth() {
-        return this.isAuth
+
+        console.log(localStorage.getItem("accessToken") == null)
+
+        if (localStorage.getItem("accessToken") === null
+            && localStorage.getItem("refreshToken") === null) {
+            return false
+        }
+
+        return true
     }
 
-    async Login(userDTO: IUser) {
+    logout() {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+    }
+
+    async Login(userDTO: UserLoginDTO) {
 
         const response = await Login(userDTO)
 
         if (response.status == 400) {
-            throw new Error("Invalid input")
+            
+            throw new Error("Пользователя не существует")
         }
 
-        if (response.status == 401) {
-            throw new Error("User doesn't exist")
-        }
+        const { refreshToken, accessToken }: TokensDTO = await response.json() as TokensDTO
 
-        const { refreshToken, accessToken }: ITokens = await response.json() as ITokens
-
-        localStorage.setItem("refreshToken", refreshToken)
-        localStorage.setItem("accessToken", accessToken)
-
-        this.isAuth = true
+        localStorage.setItem("refreshToken", refreshToken!)
+        localStorage.setItem("accessToken", accessToken!)
     }
 
-    async Register(userDTO: IUser) {
+    async Register(userDTO: UserRegistrationDTO) {
 
         const response = await Register(userDTO)
 
         if (response.status == 400) {
-            throw new Error("Invalid input")
+            throw new Error("Учётные данные заняты")
         }
     }
 }

@@ -1,19 +1,22 @@
-﻿import { Form, Input, Button, notification } from "antd"
+﻿import { Form, Input, Button, notification, DatePicker, Radio } from "antd"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { Link } from "react-router-dom"
 import { useStores } from "../../../hooks/RootContext"
-import { IUser } from "../../../vite-env"
+import UserRegistrationDTO from "../../../models/Auth/UserRegistrationDTO"
+import UtilsService from "../../../utils/UtilsService"
+import RolesDTO from "../../../models/General/RolesDTO"
 
 export default function RegisterForm(){
 
     const { authStore } = useStores()
-
+    const getRoles = UtilsService.GetRoles
     const navigate = useNavigate()
+    const [roles, setRoles] = useState<RolesDTO[]>([])
     const [isLoading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification()
 
-    function OnFinished(values: IUser) {
+    function OnFinished(values: UserRegistrationDTO) {
 
         setLoading(true)
 
@@ -33,9 +36,17 @@ export default function RegisterForm(){
     }
 
     useEffect(() => {
+
+        async function setRole() {
+            setRoles(await getRoles())
+        }
+
         if (authStore.checkAuth()) {
             navigate('/dashboard/profile')
         }
+
+        setRole()
+
     },[])
 
     return (
@@ -53,65 +64,113 @@ export default function RegisterForm(){
                 labelWrap={false}
                 
             >
-                <Form.Item<IUser>
-                    label="Username"
-                    name="userName"
+                <Form.Item<UserRegistrationDTO>
+                    label="Имя пользователя"
+                    name="username"
                     rules={[
                         {
                             required: true,
-                            message: "Login required"
+                            message: "Поле обязательно"
                         },
                         {
                             min: 8,
-                            message: "Login must be at least 8 characters"
+                            message: "Минимальная длина - 8 символов"
                         },
                         {
                             max: 50,
-                            message: "Login must be less then 50 characters"
+                            message: "Максимальная длина - 50 символов"
                         }
                     ]}
                 >
-                    <Input showCount placeholder="Login" maxLength={50} />
+                    <Input showCount placeholder="Имя пользователя" maxLength={50} />
                 </Form.Item>
 
-                <Form.Item<IUser>
-                    label="Password"
+                <Form.Item<UserRegistrationDTO>
+                    label="Пароль"
                     name="password"
                     rules={[
                         {
                             min: 8,
-                            message: "Password must be at least 8 characters"
+                            message: "Минимальная длина - 8 символов"
                         },
                         {
                             required: true,
-                            message: "Password required"
+                            message: "Поле обязательно"
                         },
                         {
                             pattern: /[a-zA-z0-9]*/,
-                            message: "Password must contain characters or numbers"
+                            message: "Пароль должен содержать латинницу или цифры"
                         }
                     ]}
                 >
-                    <Input.Password placeholder="Password" />
+                    <Input.Password placeholder="Пароль" />
                 </Form.Item>
 
-                <Form.Item<IUser>
-                    label="Email"
+                <Form.Item<UserRegistrationDTO>
+                    label="Электронная почта"
                     name="email"
                     rules={[
                         {
                             required: true,
-                            message: "EMail is required"
+                            message: "Поле обязательно"
                         },
                         {
                             type: "email",
-                            message: "Not valid EMail"
+                            message: "Введённое значение - не электронная почта"
                         }
                     ]}
                 >
-                    <Input placeholder="Email" />
+                    <Input placeholder="Электронная почта" />
                 </Form.Item>
 
+                <Form.Item<UserRegistrationDTO>
+                    label="Имя"
+                    name="firstName"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Поле обязательно"
+                        },
+                    ]}
+                >
+                    <Input placeholder="Имя" />
+                </Form.Item>
+
+                <Form.Item<UserRegistrationDTO>
+                    label="Фамилия"
+                    name="lastName"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Поле обязательно"
+                        },
+                    ]}
+                >
+                    <Input placeholder="Фамилия" />
+                </Form.Item>
+
+                <Form.Item<UserRegistrationDTO>
+                    label="Дата рождения"
+                    name="birthdate"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Поле обязательно"
+                        },
+                    ]}
+                >
+                    <DatePicker />
+                </Form.Item>
+                <Form.Item<UserRegistrationDTO>
+                    label="Роль"
+                    name="roleId"
+                >
+                    <Radio.Group>
+                        {roles.map((role) => {
+                            return <Radio value={role.id}>{role.name}</Radio>
+                        })}
+                    </Radio.Group>
+                </Form.Item>
                 <Form.Item
                 >
                     <Button type="primary" htmlType="submit" loading={isLoading}>Зарегистрироваться</Button>

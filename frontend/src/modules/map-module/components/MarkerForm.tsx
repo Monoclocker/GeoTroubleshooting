@@ -1,19 +1,18 @@
 ﻿import { Button, Form } from "antd"
 import Input from "antd/es/input/Input"
-import { IMarkerInfo } from "../../../vite-env"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../hooks/RootContext"
 import MapHub from "../services/MapHub"
+import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO"
 
 export const MarkerForm = observer(() => {
 
     const { mapStore, userStore } = useStores()
     const { connection } = MapHub()
 
-    const Finish = (values: IMarkerInfo) => {
+    const Finish = (values: MarkerCreateDTO) => {
 
-        values.coordinates = mapStore.Marker
-        values.username = userStore.User.userName
+        values.username = userStore.User.username
 
         console.log(values)
 
@@ -32,21 +31,21 @@ export const MarkerForm = observer(() => {
             <Form
                 onFinish={Finish}
             >
-                <Form.Item<IMarkerInfo>
+                <Form.Item<MarkerCreateDTO>
                     label="username"
                     name="username"
                 >
-                    <Input disabled defaultValue={userStore.User.userName}></Input>
+                    <Input disabled defaultValue={userStore.User.username}></Input>
                 </Form.Item>
 
-                <Form.Item<IMarkerInfo>
+                <Form.Item<MarkerCreateDTO>
                     label="title"
                     name="title"
                 >
                     <Input />
                 </Form.Item>
 
-                <Form.Item<IMarkerInfo>
+                <Form.Item<MarkerCreateDTO>
                     label="description"
                     name="description"
                 >

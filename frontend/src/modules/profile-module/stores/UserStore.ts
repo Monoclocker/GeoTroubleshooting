@@ -1,10 +1,10 @@
 import { makeAutoObservable } from "mobx"
-import { IUser } from "../../../vite-env"
 import { getUserInfo } from "../services/UserService"
+import UserInfoDTO from "../../../models/User/UserInfoDTO"
 
 export class UserStore {
 
-    user: IUser = {} as IUser
+    user: UserInfoDTO = {} as UserInfoDTO
 
     get User() {
         return { ...this.user }
@@ -17,8 +17,9 @@ export class UserStore {
     async GetUserInfo() {
 
         const response = await getUserInfo()
+        
+        this.user = { ...response }
 
-        this.user = {...response}
     }
 
     

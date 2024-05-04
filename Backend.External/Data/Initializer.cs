@@ -1,5 +1,5 @@
-﻿using Backend.Domain;
-using Microsoft.AspNetCore.Identity;
+﻿using Backend.Application.Interfaces;
+using Backend.Domain;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,48 +8,83 @@ namespace Backend.External.Data
 {
     public class Initializer
     {
-
         public async static Task Initialize(
-            IConfiguration _configuration,
-            RoleManager<IdentityRole<int>> _roleManager,
-            UserManager<User> _userManager,
-            MongoClient _mongo)
+            IConfiguration configuration,
+            MongoClient mongo,
+            IDatabase database)
         {
-            if (await _roleManager.FindByNameAsync("admin") is null)
-            {
-                await _roleManager.CreateAsync(new IdentityRole<int>() { Name = "admin"});
-            }
-            if (await _roleManager.FindByNameAsync("user") is null)
-            {
-                await _roleManager.CreateAsync(new IdentityRole<int>() { Name = "user" });
-            }
-            if (await _userManager.FindByNameAsync(_configuration["AdminCredentials:Username"]!) is null)
-            {
-                User adminUser = new User()
-                { UserName = _configuration["AdminCredentials:Username"]!, 
-                    Email = _configuration["AdminCredentials:Email"]! };
 
-                IdentityResult registrationResult = await _userManager.CreateAsync(adminUser,
-                _configuration["AdminCredentials:Password"]!);
-
-                if (registrationResult.Succeeded)
+            if (database.Roles.FirstOrDefault(x=>x.Name == "Admin") == null) 
+            {
+                Role adminRole = new Role()
                 {
-                    await _userManager.AddToRoleAsync(adminUser, "admin");
-                }
+                    Name = "Admin"
+                };
 
+                database.Roles.Add(adminRole);
             }
+            await database.SaveChangesAsync();
 
-            var db = _mongo.GetDatabase(_configuration["Mongo:Database"]);
-
-            if (db.GetCollection<BsonDocument>(_configuration["Mongo:MarkersCollection"]) is null)
+            if (database.Roles.FirstOrDefault(x => x.Name == "Explorer") == null)
             {
-                await db.CreateCollectionAsync(_configuration["Mongo:MarkersCollection"]);
+                Role expolorerRole = new Role()
+                {
+                    Name = "Explorer"
+                };
+
+                database.Roles.Add(expolorerRole);
+            }
+            await database.SaveChangesAsync();
+
+            if (database.Roles.FirstOrDefault(x => x.Name == "Liquidator") == null)
+            {
+                Role liquidatorRole = new Role()
+                {
+                    Name = "Liquidator"
+                };
+
+               database.Roles.Add(liquidatorRole);
+
+            }
+            await database.SaveChangesAsync();
+
+            if (database.Users.FirstOrDefault(x=>x.Username == configuration["AdminCredentials:Username"]!) == null)
+            {
+                User admin = new User()
+                {
+                    //дописать для админа
+                    Username = configuration["AdminCredentials:Username"]!,
+                    Email = configuration["AdminCredentials:Email"]!,
+                    Password = configuration["AdminCredentials:Password"]!,
+                    FirstName = "admin",
+                    LastName = "admin",
+                    Birtdate = DateTime.UtcNow
+                };
+
+                admin.Role = database.Roles.First(x=>x.Name == "Admin");
+
+                database.Users.Add(admin);
             }
 
-            if (db.GetCollection<BsonDocument>(_configuration["Mongo:ChatCollection"]) is null)
+            await database.SaveChangesAsync();
+
+            var db = mongo.GetDatabase(configuration["Mongo:Database"]);
+
+            MongoMapper mapper = new MongoMapper();
+
+            mapper.Map();
+
+            if (db.GetCollection<BsonDocument>(configuration["Mongo:MarkersCollection"]) is null)
             {
-                await db.CreateCollectionAsync(_configuration["Mongo:ChatCollection"]);
+                await db.CreateCollectionAsync(configuration["Mongo:MarkersCollection"]);
             }
+
+            //if (db.GetCollection<BsonDocument>(configuration["Mongo:ChatCollection"]) is null)
+            //{
+            //    await db.CreateCollectionAsync(configuration["Mongo:ChatCollection"]);
+            //}
+
+            
 
         }
 

@@ -10,8 +10,14 @@ namespace Backend.Domain
         
         public string? Description { get; set; }
 
-        public List<User> Users { get; set; } = default!;
-        public List<GroupRole> GroupRoles { get; set; } = default!;
+        // N:N to Users using GroupUsers
+        public List<User> Users { get; set; } = new List<User>();
+        public List<GroupUsers> GroupUsers { get; set; } = new List<GroupUsers>();
+        
+        // 1:1 to Place
+        public Place Place { get; set; } = default!;
+        public int PlaceId { get; set; }
+
 
     }
 }

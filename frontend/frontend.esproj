@@ -10,9 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="public\" />
+    <Folder Include="src\models\Marker\" />
+    <Folder Include="src\models\General\" />
+    <Folder Include="src\models\User\" />
     <Folder Include="src\modules\chat-module\stores\" />
     <Folder Include="src\modules\map-module\stores\" />
-    <Folder Include="src\modules\profile-module\services\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptConfiguration Remove="src\assets\Новая папка\**" />

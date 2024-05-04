@@ -1,10 +1,6 @@
-﻿
-using Backend.Application.DTO;
-using Backend.Application.DTO.User;
+﻿using Backend.Application.DTO.User;
 using Backend.Application.Interfaces;
-using Backend.Domain;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -21,21 +17,29 @@ namespace Backend.Controllers
             userService = _userService;
         }
 
-        [Authorize]
         [HttpGet("Info")]
-        [ProducesResponseType(typeof(UserPublicDTO), 200)]
+        [ProducesResponseType(typeof(UserInfoDTO), 200)]
         public async Task<IActionResult> GetUserInfo()
         {
 
-            try
+            string? username = User!.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            if (username == null)
             {
-                UserPublicDTO dto = await userService.GetUserInfoAsync(User.Claims.Where(x => x.Type == ClaimTypes.Name).First().Value);
-                return Ok(dto);
+                return Unauthorized();
             }
-            catch
+
+            UserInfoDTO? info = await userService.GetUserInfoAsync(username);
+
+            if (info == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            info.photo = "images/" + info.photo;
+
+            return Ok(info);
+            
         }
 
         //[HttpGet("Info/{id}")]

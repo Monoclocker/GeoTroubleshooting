@@ -4,9 +4,10 @@ namespace Backend.Application.Interfaces
 {
     public interface IMapMarkerService
     {
-        public Task<IEnumerable<MarkerDTO>> GetMarkersAsync();
-        public Task AddMarkerAsync(MarkerDTO dto);
-        public Task UpdateMarkerAsync(MarkerDTO dto);
-        public Task RemoveMarkersAsync(MarkerDTO dto);
+        public Task<List<MarkerInfoDTO>> GetMarkersAsync(MarkersGetDTO dto);
+        public Task<MarkerInfoDTO> AddMarkerAsync(MarkerCreateDTO dto);
+        public Task<bool> UpdateMarkerAsync(MarkerInfoDTO dto);
+        public Task<bool> RemoveMarkersAsync(Guid id);
+       
     }
 }

@@ -1,19 +1,25 @@
 //import { useState } from "react";
-import { DomEvent, DomEventHandlerObject} from "@yandex/ymaps3-types"
+import { DomEvent, DomEventHandlerObject, LngLat} from "@yandex/ymaps3-types"
 import { observer } from "mobx-react-lite"
-import { YMap, YMapComponentsProvider, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener } from "ymap3-components"
+import { YMap, YMapComponentsProvider, YMapControls, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener, YMapZoomControl } from "ymap3-components"
 import { useStores } from "../../../hooks/RootContext"
 import MapHub from "../services/MapHub"
-import { IMarkerInfo } from "../../../vite-env"
-import { useEffect } from "react"
-
+import { useEffect, useState } from "react"
+import { Popover } from "antd"
+import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
+import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO"
+import { MarkerForm } from "./MarkerForm"
 
 const MapComponent = observer(() => {
 
     const { mapStore } = useStores()
     const { connection } = MapHub()
 
+    const [location, setLocation] = useState({ center: [40, 13], zoom: 5 })
+
     function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
+        console.log(event);
+        setLocation({ center: [event.coordinates[0], event.coordinates[1]], zoom: 5 })
         mapStore.setFormData(event.coordinates)
         mapStore.showForm(true)
     }
@@ -22,11 +28,11 @@ const MapComponent = observer(() => {
 
         connection.invoke("GetMarkers").catch((err) => console.log(err))
 
-        connection.on("InitMarkers", (markers: IMarkerInfo[]) => {
+        connection.on("InitMarkers", (markers: MarkerInfoDTO[]) => {
             mapStore.getMarkers(markers)
         })
 
-        connection.on("NewMarker", (marker: IMarkerInfo) => {
+        connection.on("NewMarker", (marker: MarkerCreateDTO) => {
             mapStore.addMarker(marker)
         })
 
@@ -39,23 +45,42 @@ const MapComponent = observer(() => {
 
     return (
 
-        <div style={{ width: '500px', height:'500px' }}>
+        <div style={{ height: "100%" }}>
             <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
-                <YMap location={{ center: [40, 13], zoom: 2 }}
-                >
+                <YMap location={location}>
                     <YMapDefaultSchemeLayer theme="dark" />
-                    <YMapDefaultFeaturesLayer />
+                    <YMapDefaultFeaturesLayer  
+                    />
                     <YMapListener
                         layer='any'
                         onClick={clickHandler}
                     />
+                    <YMapControls position={"right"}>
+                        <YMapZoomControl>
+
+                        </YMapZoomControl>
+                    </YMapControls>
 
                     {mapStore.markers.map(marker => {
                         return <YMapDefaultMarker coordinates={marker.coordinates}></YMapDefaultMarker>
                     })}
 
                     {mapStore.formIsOpened ?
-                        <YMapDefaultMarker coordinates={mapStore.Marker!}></YMapDefaultMarker>
+                        <YMapDefaultMarker coordinates={location.center as LngLat}></YMapDefaultMarker>
+                        :
+                        null
+                    }
+
+                    {mapStore.formIsOpened ?
+                        
+                        <Popover
+                            content={
+                                <MarkerForm />
+                            }
+                            open={true}
+                        >
+                            <div></div>
+                        </Popover>
                         :
                         null
                     }

@@ -1,7 +1,8 @@
+import UserLoginDTO from "../../../models/Auth/UserLoginDTO"
+import UserRegistrationDTO from "../../../models/Auth/UserRegistrationDTO"
 import { ADDRESS, LOGIN_PATH, REGISTER_PATH } from "../../../utils/APIConstants"
-import { IUser } from "../../../vite-env"
 
-const Login = (loginData: IUser) : Promise<Response> => {
+const Login = (loginData: UserLoginDTO): Promise<Response> => {
 
     return fetch(ADDRESS + LOGIN_PATH, {
         method: "POST",
@@ -14,7 +15,7 @@ const Login = (loginData: IUser) : Promise<Response> => {
 
 }
 
-const Register = (registrationData: IUser) => {
+const Register = (registrationData: UserRegistrationDTO) => {
     return fetch(ADDRESS + REGISTER_PATH, {
         method: "POST",
         headers: {

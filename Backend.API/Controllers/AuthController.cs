@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Backend.Application.Interfaces;
-using Backend.Application.DTO.User;
-using Backend.Application.DTO.Token;
+using Backend.Application.DTO.Auth;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 
 namespace Backend.Controllers
 {
@@ -10,15 +11,11 @@ namespace Backend.Controllers
     [Route("api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
-        readonly IConfiguration configuration;
-        readonly IUserService userService;
-        readonly ITokenService tokenService;
+        readonly IAuthService authService;
 
-        public AuthController(IConfiguration _configuration, IUserService _userService, ITokenService _tokenService)
+        public AuthController(IAuthService authService)
         {
-            configuration = _configuration;
-            userService = _userService;
-            tokenService = _tokenService;
+            this.authService = authService;
         }
 
         [HttpPost("Registration")]
@@ -29,16 +26,14 @@ namespace Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            try
+            bool result = await authService.RegisterUserAsync(DTO);
+
+            if (result)
             {
-                await userService.RegisterUserAsync(DTO);
-            }
-            catch
-            {
-                return BadRequest();
+                return Ok();
             }
 
-            return Ok();
+            return BadRequest();
         }
 
         [HttpPost("Login")]
@@ -49,38 +44,37 @@ namespace Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            TokensDTO? tokens = await authService.LoginAsync(DTO);
 
-            try
-            {
-                TokensDTO tokens = await userService.TryLoginAsync(DTO);
-                return Ok(tokens);
-            }
-            catch
-            {
-                return Unauthorized();
-            }
-        }
-
-        public record RefreshToken(string refreshToken);
-
-        [HttpPost("Refresh")]
-        public async Task<IActionResult> Refresh(RefreshToken dto)
-        {
-            ClaimsPrincipal? principal = tokenService.ValidateRefreshToken(dto.refreshToken, configuration);
-
-            try
-            {
-                TokensDTO tokens = await userService.RefreshTokensAsync(principal);
-                return Ok(tokens);
-            }
-            catch
+            if (tokens == null)
             {
                 return BadRequest();
             }
+
+            return Ok(tokens);
+
+        }
+
+        [Authorize]
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+
+            string? username = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            if (username == null)
+            {
+                return Unauthorized();
+            }
+
+            TokensDTO? tokens = await authService.RefreshTokensAsync(username);
+
+            if(tokens == null)
+            {
+                return Forbid();
+            }
+
+            return Ok(tokens);
 
         }
     }

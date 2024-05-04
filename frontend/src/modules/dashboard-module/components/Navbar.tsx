@@ -1,10 +1,18 @@
 ﻿import { Menu } from "antd"
 import { useNavigate } from "react-router"
-import { ProfileFilled, HeatMapOutlined, MessageOutlined } from "@ant-design/icons"
+import { ProfileFilled, HeatMapOutlined, MessageOutlined, LogoutOutlined } from "@ant-design/icons"
+import { useStores } from "../../../hooks/RootContext"
 
 const Navbar = () => {
 
     const navigate = useNavigate()
+    const { authStore } = useStores()
+
+    function logout() {
+        authStore.logout()
+        navigate("/")
+    }
+
 
     return (
         <Menu
@@ -20,6 +28,9 @@ const Navbar = () => {
                 },
                 {
                     key: "3", icon: <MessageOutlined />, label: "Чат", onClick: () => { navigate("chat") }
+                },
+                {
+                    key: "4", icon: <LogoutOutlined />, label: "Выйти", onClick: () => { logout() } 
                 }
         ]} />
              

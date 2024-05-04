@@ -1,9 +1,9 @@
-﻿import { Form, Input, Button, notification } from "antd"
+﻿import { Form, Input, Button, notification, Spin } from "antd"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { Link } from "react-router-dom"
-import { IUser } from "../../../vite-env"
 import { useStores } from "../../../hooks/RootContext"
+import UserLoginDTO from "../../../models/Auth/UserLoginDTO"
 
 export default function LoginForm() {
 
@@ -11,8 +11,8 @@ export default function LoginForm() {
     const navigate = useNavigate()
     const [isLoading, setLoading] = useState(false)
     const [api, contextHolder] = notification.useNotification()
-
-    function OnFinished(values: IUser) {
+    const [fullscreenLoading, setfsLoading] = useState(false)
+    function OnFinished(values: UserLoginDTO) {
 
         setLoading(true)
 
@@ -32,10 +32,24 @@ export default function LoginForm() {
     }
 
     useEffect(() => {
+
+        setfsLoading(true)
+
         if (authStore.checkAuth()) {
+
+            setfsLoading(false)
+
             navigate('/dashboard/profile')
         }
+
+        setfsLoading(false)
+
     }, [])
+
+
+    if (fullscreenLoading) {
+        return <Spin spinning={true} fullscreen/>
+    }
 
 
     return (
@@ -53,30 +67,30 @@ export default function LoginForm() {
                 labelWrap={false}
 
             >
-                <Form.Item<IUser>
-                    label="Username"
-                    name="userName"
+                <Form.Item<UserLoginDTO>
+                    label="Имя пользователя"
+                    name="username"
                     rules={[
                         {
                             required: true,
-                            message: "Login required"
+                            message: "Поле является обязательным"
                         }
                     ]}
                 >
-                    <Input showCount placeholder="Login" maxLength={50} />
+                    <Input showCount placeholder="Имя пользователя" maxLength={50} />
                 </Form.Item>
 
-                <Form.Item<IUser>
-                    label="Password"
+                <Form.Item<UserLoginDTO>
+                    label="Пароль"
                     name="password"
                     rules={[
                         {
                             required: true,
-                            message: "Password required"
+                            message: "Поле является обязательным"
                         }
                     ]}
                 >
-                    <Input.Password placeholder="Password" />
+                    <Input.Password placeholder="Пароль" />
                 </Form.Item>
 
                 <Form.Item

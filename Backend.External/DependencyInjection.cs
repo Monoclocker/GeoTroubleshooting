@@ -1,9 +1,7 @@
 ﻿using Backend.Application.Interfaces;
-using Backend.Domain;
 using Backend.External.Data;
 using Backend.External.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,40 +22,15 @@ namespace Backend.External
                 options.UseNpgsql(configuration["Database"] ?? throw new Exception("Wrong string"));
             });
 
-            services.AddIdentity<User, IdentityRole<int>>(options =>
-            {
-                options.Password.RequiredLength = 8;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-            })
-                .AddEntityFrameworkStores<DatabaseContext>();
-
-            services.AddScoped<ITokenService, JwtTokenService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IGroupService, GroupService>();
-            services.AddScoped<IMapMarkerService, MapMarkerService>();
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(options =>
-                {
-
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ClockSkew = TimeSpan.FromSeconds(0),
-                        ValidateIssuer = true,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = configuration["jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:Key"]!))
-                    };
-                });
-            Console.WriteLine(configuration["jwt:Audience"]);
+            services.AddScoped<IDatabase>(provider => provider.GetService<DatabaseContext>()!);
             services.AddSingleton(new MongoClient(configuration["Mongo:Connection"]));
+            services.AddScoped(provider => provider.GetService<MongoClient>()!.GetDatabase(configuration["Mongo:Database"]));
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUtilsService, UtilsService>();
+            //services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IMapMarkerService, MapMarkerService>();
 
             return services;
         }
@@ -67,11 +40,12 @@ namespace Backend.External
             try
             {
                 var services = scope.ServiceProvider;
-                var userManager = services.GetService<UserManager<User>>();
-                var roleManager = services.GetService<RoleManager<IdentityRole<int>>>();
                 var mongo = services.GetService<MongoClient>();
+                var database = services.GetService<DatabaseContext>();
 
-                await Initializer.Initialize(configuration, roleManager!, userManager!, mongo!);
+                await database!.Database.EnsureCreatedAsync();
+
+                await Initializer.Initialize(configuration, mongo!, database!);
             }
             catch (Exception ex)
             {

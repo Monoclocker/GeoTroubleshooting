@@ -1,10 +1,11 @@
 import { makeAutoObservable } from "mobx";
-import { IMarkerInfo } from "../../../vite-env";
 import { LngLat } from "@yandex/ymaps3-types";
+import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO";
+import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO";
 
 export class MapStore {
 
-    markers: IMarkerInfo[] = []
+    markers: MarkerInfoDTO[] = []
 
     markerFormCoordinates?: LngLat
 
@@ -18,7 +19,7 @@ export class MapStore {
         makeAutoObservable(this)
     }
 
-    addMarker(marker: IMarkerInfo) {
+    addMarker(marker: MarkerCreateDTO) {
 
         if (this.markers.length == 50) {
             this.markers.shift()
@@ -27,7 +28,7 @@ export class MapStore {
         this.markers = [...this.markers, marker]
     }
 
-    getMarkers(markers: IMarkerInfo[]) {
+    getMarkers(markers: MarkerInfoDTO[]) {
         this.markers = markers
     }
 

@@ -1,5 +1,6 @@
+import TokensDTO from "../../../models/Auth/TokensDTO";
+import UserInfoDTO from "../../../models/User/UserInfoDTO";
 import { ADDRESS, USERINFO_PATH, VERIFY_PATH } from "../../../utils/APIConstants";
-import { ITokens, IUser } from "../../../vite-env";
 
 const VerifyRefreshToken = (refreshToken: string | null) => {
 
@@ -7,23 +8,25 @@ const VerifyRefreshToken = (refreshToken: string | null) => {
         return false
     }
 
+    const token: TokensDTO = { refreshToken: refreshToken } 
+
     fetch(ADDRESS + VERIFY_PATH, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
         },
-        body: JSON.stringify({ "refreshToken": refreshToken })
+        body: JSON.stringify(token)
     })
         .then((responce) => {
-            if (responce.status == 400) {
+            if (responce.status == 403) {
                 return false
             }
 
             responce.json().then((data) => {
-                const { accessToken, refreshToken }: ITokens = data as ITokens
-                localStorage.setItem("accessToken", accessToken)
-                localStorage.setItem("refreshToken", refreshToken)
+                const { accessToken, refreshToken }: TokensDTO = data as TokensDTO
+                localStorage.setItem("accessToken", accessToken!)
+                localStorage.setItem("refreshToken", refreshToken!)
             })
 
             return true
@@ -34,7 +37,7 @@ const VerifyRefreshToken = (refreshToken: string | null) => {
         })
 }
 
-const getUserInfo = (): Promise<IUser> => {
+const getUserInfo = (): Promise<UserInfoDTO> => {
 
     return fetch(ADDRESS + USERINFO_PATH, {
         method: "GET",
@@ -50,7 +53,11 @@ const getUserInfo = (): Promise<IUser> => {
         }
 
         if (response.status == 401 && !VerifyRefreshToken(localStorage.getItem("refreshToken"))) {
-            throw new Error()
+            localStorage.removeItem("accessToken")
+            localStorage.removeItem("refreshToken")
+            window.location.reload()
+            Promise.reject()
+            return
         }
 
         return getUserInfo()

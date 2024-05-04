@@ -9,22 +9,20 @@ namespace Backend.Hubs
     public class MapHub: Hub
     {
         readonly IMapMarkerService markerService;
-        readonly IConfiguration configuration;
 
-        public MapHub(IMapMarkerService _markerService, IConfiguration _configuration)
+        public MapHub(IMapMarkerService markerService)
         {
-            configuration = _configuration;
-            markerService = _markerService;
+            this.markerService = markerService;
         }
 
-        public async Task GetMarkers()
+        public async Task GetMarkers(MarkersGetDTO dto)
         {
-            var markers = await markerService.GetMarkersAsync();
+            var markers = await markerService.GetMarkersAsync(dto);
 
             await Clients.Caller.SendAsync("InitMarkers", markers);
         }
 
-        public async Task AddMarker(MarkerDTO marker)
+        public async Task AddMarker(MarkerCreateDTO marker)
         {
             await markerService.AddMarkerAsync(marker);
 
