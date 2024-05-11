@@ -8,9 +8,9 @@ namespace Backend.Domain
 {
     public class GroupUsers
     {
-        public int UsertId { get; set; }
+        public int UserId { get; set; }
         public int GroupId { get; set; }
-
+        public bool IsAdmin { get; set; } = false;
         public User User { get; set; } = default!;
         public Group Group { get; set; } = default!;
     }

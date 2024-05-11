@@ -14,6 +14,14 @@ export const USERINFO_PATH: string = "User/Info"
 
 export const KEY_PATH: string = "Auth/ApiKey"
 
-export const GETGROUPS_PATH: string = "Groups"
+export const GROUPS_PATH: string = "Groups"
+
+export const UPLOAD_PATH: string = "Utils/Upload"
+
+export const PlACES_PATH: string = "Places"
+
+export const MARKERS_PATH: string = "Map"
+
+export const SEARCH_PATH: string = "Utils/Search?input="
 
 export const MAPHUB_PATH: string = "http://localhost:5078/map"

@@ -1,32 +1,37 @@
 ﻿using Backend.Application.DTO.Marker;
 using Backend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using System.Security.Claims;
 
 namespace Backend.Hubs
 {
     public class MapHub: Hub
     {
         readonly IMapMarkerService markerService;
+        IConfiguration configuration;
 
-        public MapHub(IMapMarkerService markerService)
+        public MapHub(IMapMarkerService markerService, IConfiguration configuration)
         {
             this.markerService = markerService;
+            this.configuration = configuration;
         }
-
-        public async Task GetMarkers(MarkersGetDTO dto)
+        public override async Task OnConnectedAsync()
         {
-            var markers = await markerService.GetMarkersAsync(dto);
 
-            await Clients.Caller.SendAsync("InitMarkers", markers);
+            await Groups.AddToGroupAsync(Context.ConnectionId, "Liquidator");
+
+            await base.OnConnectedAsync();
+
         }
 
         public async Task AddMarker(MarkerCreateDTO marker)
         {
-            await markerService.AddMarkerAsync(marker);
 
-            await Clients.AllExcept(Context.ConnectionId).SendAsync("NewMarker", marker);
+            MarkerInfoDTO newMarker = await markerService.AddMarkerAsync(marker);
+
+            await Clients.Group("Explorer").SendAsync("NewMarker", newMarker);
+
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)

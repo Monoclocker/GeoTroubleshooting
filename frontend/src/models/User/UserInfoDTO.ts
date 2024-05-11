@@ -4,7 +4,6 @@ interface UserInfoDTO {
     firstname: string,
     surname: string,
     role: string,
-    newPassword?: string,
     birthdate: Date,
     photo: string
 }

@@ -405,3 +405,4 @@ FodyWeavers.xsd
 /.vs
 /frontend/.env
 /Backend.External/Migrations
+/Backend.API/wwwroot/images

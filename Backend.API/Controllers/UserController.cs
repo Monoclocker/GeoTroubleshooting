@@ -17,12 +17,15 @@ namespace Backend.Controllers
             userService = _userService;
         }
 
+        [Authorize]
         [HttpGet("Info")]
         [ProducesResponseType(typeof(UserInfoDTO), 200)]
         public async Task<IActionResult> GetUserInfo()
         {
 
             string? username = User!.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            Console.WriteLine(username);
 
             if (username == null)
             {
@@ -41,6 +44,22 @@ namespace Backend.Controllers
             return Ok(info);
             
         }
+
+        [Authorize]
+        [HttpPut("Info")]
+        public async Task<IActionResult> UpdateUserInfo(UserUpdateDTO dto)
+        {
+
+            bool isUpdated = await userService.UpdateUserAsync(dto);
+
+            if (isUpdated)
+            {
+                return Ok(dto);
+            }
+
+            return BadRequest();
+        }
+
 
         //[HttpGet("Info/{id}")]
         //[ProducesResponseType(typeof(UserPublicDTO), 200)]

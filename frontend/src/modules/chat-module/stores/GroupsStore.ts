@@ -1,23 +1,20 @@
 import { makeAutoObservable } from "mobx";
-import { IGroup } from "../../../vite-env";
-import { GetGroups } from "../services/GroupsService";
+import GroupInfoDTO from "../../../models/Groups/GroupInfoDTO";
 
 class GroupsStore {
 
-    userGroups: IGroup[] = []
+    userGroups: GroupInfoDTO[] = []
 
     constructor() {
         makeAutoObservable(this)
     }
 
-    async initGroups() {
-        const response = await GetGroups()
+    get UserGroups() {
+        return this.userGroups.length
+    }
 
-        if (!response.ok) {
-            throw Error("error")
-        }
-
-        this.userGroups = await response.json() as IGroup[]
+    GetGroups(groups: GroupInfoDTO[]) {
+        this.userGroups = groups
     }
 
 }

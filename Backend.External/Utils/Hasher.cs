@@ -13,7 +13,7 @@ namespace Backend.External.Utils
 
             byte[] hashBytes = sha.ComputeHash(stringBytes);
 
-            string hashedString = Encoding.UTF8.GetString(hashBytes);
+            string hashedString = Convert.ToBase64String(hashBytes);
 
             return hashedString;
 

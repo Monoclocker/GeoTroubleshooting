@@ -14,7 +14,6 @@ namespace Backend.Application.DTO.User
         public string surname { get; set; } = default!;
         public string photo {  get; set; } = default!;
         public string role { get; set; } = default!;
-        public string? newPassword { get; set; }
         public DateTime birthdate { get; set; }
     }
 }

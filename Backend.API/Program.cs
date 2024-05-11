@@ -36,11 +36,28 @@ namespace Backend.API
                         ValidIssuer = builder.Configuration["jwt:Issuer"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwt:Key"]!))
                     };
+                    options.Events = new JwtBearerEvents()
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            // если запрос направлен хабу
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                            {
+                                // получаем токен из строки запроса
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
 
             builder.Services.AddSignalR(options =>
             {
+                options.EnableDetailedErrors = true;
                 options.KeepAliveInterval = TimeSpan.FromMinutes(2);
             });
 
@@ -73,10 +90,11 @@ namespace Backend.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapHub<MapHub>("/map");
-            app.MapControllers();
-            //app.MapHub<ChatHub>("/chat");
             
+            app.MapControllers();
+            app.MapHub<MapHub>("/map");
+            //app.MapHub<ChatHub>("/chat");
+
 
             app.Run();
         }

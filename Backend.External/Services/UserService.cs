@@ -42,7 +42,7 @@ namespace Backend.External.Services
             return userInfo;
         }
 
-        public async Task<bool> UpdateUserAsync(UserInfoDTO dto)
+        public async Task<bool> UpdateUserAsync(UserUpdateDTO dto)
         {
 
             User? user = await database
@@ -57,6 +57,11 @@ namespace Backend.External.Services
             user.FirstName = dto.firstname;
             user.LastName = dto.surname;
             user.Birtdate = dto.birthdate;
+
+            if (dto.photo != null)
+            {
+                user.Photo = dto.photo;
+            }
 
             if (dto.newPassword != null)
             {

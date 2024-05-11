@@ -8,6 +8,9 @@ namespace Backend.External.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Place> Places { get; set; }
+        public DbSet<PlaceType> Types { get; set; }
+        public DbSet<Group> Groups { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options): base(options) 
         { }
@@ -41,21 +44,26 @@ namespace Backend.External.Data
             builder.Entity<Role>()
                 .HasKey(r=>r.Id);
 
+            builder.Entity<Place>()
+                .HasKey(r => r.Id);
 
+            builder.Entity<PlaceType>()
+                .HasKey(r => r.Id);
 
-            //builder.Entity<Group>()
-            //        .HasMany(group => group.Users)
-            //        .WithMany(user => user.Groups)
-            //        .UsingEntity<GroupRole>(
-            //            entity => entity
-            //                .HasOne(field => field.User)
-            //                .WithMany(field => field.GroupRoles)
-            //                .HasForeignKey("GroupId"),
-            //            entity => entity
-            //                .HasOne(field => field.Group)
-            //                .WithMany(field => field.GroupRoles)
-            //                .HasForeignKey("UserId")
-            //                ); 
+            builder.Entity<Group>()
+                .HasKey(r => r.Id);
+
+            builder.Entity<Group>()
+                .HasMany(x => x.Users)
+                .WithMany(x => x.Groups)
+                .UsingEntity<GroupUsers>(
+                    x =>
+                    {
+                        x.HasKey(r => new { r.UserId, r.GroupId });
+                        x.HasOne(r => r.User).WithMany(r => r.GroupUsers);
+                        x.HasOne(r => r.Group).WithMany(r => r.GroupUsers).OnDelete(DeleteBehavior.Cascade);
+                    }
+                );
         }
     }
 }

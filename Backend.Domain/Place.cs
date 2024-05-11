@@ -10,8 +10,8 @@ namespace Backend.Domain
     {
         public int Id { get; set; }
         public string Name { get; set; } = default!;
-        public float Latitude {  get; set; }
-        public float Longtitude { get; set; }
-        public string Type { get; set; } = default!;
+        public float[] Coordinates { get; set; } = default!;
+        public PlaceType Type { get; set; } = default!;
+        public int TypeId {  get; set; }
     }
 }

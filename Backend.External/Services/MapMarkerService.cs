@@ -22,24 +22,25 @@ namespace Backend.External.Services
 
         public async Task<List<MarkerInfoDTO>> GetMarkersAsync(MarkersGetDTO dto)
         {
-            var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkerCollection"]);
+            var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
-            var markers = await collection.FindAsync(x => x.TimeStamp < dto.endTimestamp && x.TimeStamp >= dto.startTimestamp);
+            var builder = Builders<Marker>.Filter;
+            var filter = builder.Where(x => x.TimeStamp <= dto.endTimestamp && x.TimeStamp >= dto.startTimestamp && x.PlaceId == dto.placeId);
 
-            var markersList = await markers.ToListAsync();
+            var markers = await collection.Find(filter).ToListAsync();;
 
             List<MarkerInfoDTO> dtoList = new List<MarkerInfoDTO>();
 
-            foreach (var marker in markersList)
+            foreach (var marker in markers)
             {
                 MarkerInfoDTO markerInfo = new MarkerInfoDTO()
                 {
                     id = marker.Id.ToString(),
                     name = marker.Name,
-                    coordinates = marker.Coordinates,
+                    coordinates = marker.Coordinates.ToList(),
                     timestamp = marker.TimeStamp,
                     attachments = marker.Attachments,
-                    tags = marker.Tags.ToArray(),
+                    //tags = marker.Tags.ToArray(),
                     description = marker.Description,
                 };
 
@@ -55,19 +56,21 @@ namespace Backend.External.Services
 
         public async Task<MarkerInfoDTO> AddMarkerAsync(MarkerCreateDTO dto)
         {
-            var collection = mongo.GetCollection<Marker>("MarkerCollection");
+            var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
             Marker newMarker = new Marker()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Name = dto.name,
                 TimeStamp = DateTime.UtcNow,
                 Description = dto.description,
                 Attachments = dto.attachments.ToList(),
-                Tags = dto.tags.ToList(),
-                Coordinates = dto.coordinates,
+                //Tags = dto.tags.ToList(),
+                Coordinates = dto.coordinates.ToArray(),
                 PlaceId = dto.placeId,
             };
+
+            Console.WriteLine(newMarker.Id.ToString());
 
             User user = await database.Users.FirstAsync(x => x.Username == dto.username);
 
@@ -75,22 +78,29 @@ namespace Backend.External.Services
 
             await collection.InsertOneAsync(newMarker);
 
-            MarkerInfoDTO info = (MarkerInfoDTO)dto;
-
-            info.id = newMarker.Id.ToString();
-            info.timestamp = newMarker.TimeStamp;
+            MarkerInfoDTO info = new MarkerInfoDTO()
+            {
+                attachments = dto.attachments.ToList(),
+                coordinates = dto.coordinates,
+                description = dto.description,
+                id = newMarker.Id.ToString(),
+                name = dto.name,
+                placeId = dto.placeId,
+                timestamp = newMarker.TimeStamp,
+                username = dto.username,
+            };
 
             return info;
         }
         public async Task<bool> UpdateMarkerAsync(MarkerInfoDTO dto)
         {
-            var collection = mongo.GetCollection<Marker>("MarkerCollection");
+            var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
             Marker marker = await collection.FindOneAndUpdateAsync(x => x.Id == Guid.Parse(dto.id), 
                 new BsonDocument("$set", 
                     new BsonDocument { 
                         { "Description", dto.description },
-                        { "Tags", new BsonArray(dto.tags) }
+                        //{ "Tags", new BsonArray(dto.tags) }
                     }));
 
             return true;
@@ -98,7 +108,7 @@ namespace Backend.External.Services
 
         public async Task<bool> RemoveMarkersAsync(Guid id) 
         {
-            var collection = mongo.GetCollection<Marker>("MarkerCollection");
+            var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
             await collection.FindOneAndDeleteAsync(x => x.Id == id);
 

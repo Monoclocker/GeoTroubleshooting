@@ -1,21 +1,37 @@
 ﻿import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Descriptions, DescriptionsProps, Avatar, Form, Input, Button, DatePicker, Tabs, TabsProps, Upload, UploadProps  } from "antd";
+import { Descriptions, DescriptionsProps, Avatar, Form, Input, Button, DatePicker, Tabs, TabsProps, Upload, UploadProps, UploadFile } from "antd";
+import { UploadOutlined } from "@ant-design/icons"
 import { useStores } from "../../../hooks/RootContext";
 import { useNavigate } from "react-router";
 import UserInfoDTO from "../../../models/User/UserInfoDTO";
 import { IMAGE_ADDRESS } from "../../../utils/APIConstants";
+import UserUpdateDTO from "../../../models/User/UserUpdateDTO";
+import UtilsService from "../../../utils/UtilsService";
+import FilesNamesDTO from "../../../models/General/FilesNamesDTO";
 
 
 const UserProfile = observer(() => {
 
     const { authStore, userStore } = useStores()
-
-    let newPhotoName: string | null = null
-
+    const { UploadFiles } = UtilsService
     const navigate = useNavigate()
     const [user, setUser] = useState<UserInfoDTO>({} as UserInfoDTO)
+    const [formFiles, setFormFiles] = useState<UploadFile[]>([])
 
+    const props: UploadProps = {
+        onRemove: (file) => {
+            const index = formFiles.indexOf(file);
+            const newFileList = formFiles.slice();
+            newFileList.splice(index, 1);
+            setFormFiles(newFileList);
+        },
+        beforeUpload: (file) => {
+            setFormFiles([file]);
+            return false;
+        },
+        formFiles,
+    }
 
     useEffect(() => {
 
@@ -26,8 +42,6 @@ const UserProfile = observer(() => {
 
         userStore.GetUserInfo()
             .then(() => setUser(userStore.User))
-
-
     }, [])
 
     const profileItems: DescriptionsProps['items'] = [
@@ -58,11 +72,42 @@ const UserProfile = observer(() => {
         }
     ]
 
-    //придумать логику отправки фото и обновления профиля + прописать эндпоинт
+    const onFinished = async (values: UserUpdateDTO) => {
+
+        const formData = new FormData()
+
+        let newPhoto =
+
+        formFiles.forEach((file) => {
+            formData.append('files', file)
+            newPhoto = file.name
+        })
+
+        const uploadResult = await UploadFiles(formData)
+
+        if (uploadResult === true) {
+            values.photo = newPhoto
+        }
+
+        values.username = user.username
+        if (values.birthdate === undefined) {
+            values.birthdate = user.birthdate
+        }
+
+        const result = await userStore.UpdateUser(values)
+
+        if (result === true) {
+            window.location.reload();
+        }
+
+        console.log("Error")
+
+    }
+
+
 
     const form = (
         <Form
-            scrollToFirstError
             onFinish={onFinished}
             colon={false}
             style={{
@@ -71,19 +116,19 @@ const UserProfile = observer(() => {
             wrapperCol={{ offset: 5 }}
             labelCol={{ offset: 5 }}
             labelWrap={false}
-
+            initialValues={{
+                'email': user.email,
+                'firstname': user.firstname,
+                'surname': user.surname
+            }}
         >
-            <Form.Item<UserInfoDTO>
+            <Form.Item<UserUpdateDTO>
                 label="Пароль"
                 name="newPassword"
                 rules={[
                     {
                         min: 8,
                         message: "Минимальная длина - 8 символов"
-                    },
-                    {
-                        required: true,
-                        message: "Поле обязательно"
                     },
                     {
                         pattern: /[a-zA-z0-9]*/,
@@ -94,7 +139,7 @@ const UserProfile = observer(() => {
                 <Input.Password placeholder="Пароль" />
             </Form.Item>
 
-            <Form.Item<UserInfoDTO>
+            <Form.Item<UserUpdateDTO>
                 label="Электронная почта"
                 name="email"
                 rules={[
@@ -111,7 +156,7 @@ const UserProfile = observer(() => {
                 <Input placeholder="Электронная почта" />
             </Form.Item>
 
-            <Form.Item<UserInfoDTO>
+            <Form.Item<UserUpdateDTO>
                 label="Имя"
                 name="firstname"
                 rules={[
@@ -124,9 +169,9 @@ const UserProfile = observer(() => {
                 <Input placeholder="Имя" />
             </Form.Item>
 
-            <Form.Item<UserInfoDTO>
+            <Form.Item<UserUpdateDTO>
                 label="Фамилия"
-                name="lastname"
+                name="surname"
                 rules={[
                     {
                         required: true,
@@ -136,17 +181,15 @@ const UserProfile = observer(() => {
             >
                 <Input placeholder="Фамилия" />
             </Form.Item>
-            <Upload>
-            </Upload>
-            <Form.Item<UserInfoDTO>
+            <Form.Item>
+                <Upload {...props}>
+                    <Button icon={<UploadOutlined />}>Обновить фото профиля</Button>
+                </Upload>
+            </Form.Item>
+            
+            <Form.Item<UserUpdateDTO>
                 label="Дата рождения"
                 name="birthdate"
-                rules={[
-                    {
-                        required: true,
-                        message: "Поле обязательно"
-                    },
-                ]}
             >
                 <DatePicker />
             </Form.Item>

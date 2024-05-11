@@ -10,7 +10,8 @@ class MapHub {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(MAPHUB_PATH, {
                 skipNegotiation: true,
-                transport: signalR.HttpTransportType.WebSockets
+                transport: signalR.HttpTransportType.WebSockets,
+                accessTokenFactory: () => { return localStorage.getItem("accessToken") as string }
             })
             .withAutomaticReconnect()
             .build()

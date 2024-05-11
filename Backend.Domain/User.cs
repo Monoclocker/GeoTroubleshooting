@@ -21,10 +21,10 @@ namespace Backend.Domain
         // N:1 to Roles
         public int RoleId { get; set; }
         public Role Role { get; set; } = default!;
-        
+
         // N:N to Groups using GroupUsers
-        //public List<Group> Groups { get; set; } = new List<Group>();
-        //public List<GroupUsers> GroupUsers { get; set; } = new List<GroupUsers>();
+        public List<Group> Groups { get; set; } = new List<Group>();
+        public List<GroupUsers> GroupUsers { get; set; } = new List<GroupUsers>();
 
     }
 }

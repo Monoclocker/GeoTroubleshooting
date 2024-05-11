@@ -35,8 +35,8 @@ namespace Backend.External.Services
 
             TokensDTO tokens = new TokensDTO()
             {
-                accessToken = tokenService.GenerateToken(dto.username, user.Role.Name, 1),
-                refreshToken = tokenService.GenerateToken(dto.username, user.Role.Name, 10),
+                accessToken = tokenService.GenerateToken(dto.username, user.Role.Name, Constants.AccessLifeTime),
+                refreshToken = tokenService.GenerateToken(dto.username, user.Role.Name, Constants.RefreshLifeTime),
             };
 
             return tokens;
@@ -87,8 +87,8 @@ namespace Backend.External.Services
 
             TokensDTO tokens = new TokensDTO()
             {
-                accessToken = tokenService.GenerateToken(username, user.Role.Name, 1),
-                refreshToken = tokenService.GenerateToken(username, user.Role.Name, 10),
+                accessToken = tokenService.GenerateToken(username, user.Role.Name, Constants.AccessLifeTime),
+                refreshToken = tokenService.GenerateToken(username, user.Role.Name, Constants.RefreshLifeTime),
             };
 
             return tokens;

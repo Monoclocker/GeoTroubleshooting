@@ -29,7 +29,8 @@ namespace Backend.External
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUtilsService, UtilsService>();
-            //services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IPlacesService, PlacesService>();
+            services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IMapMarkerService, MapMarkerService>();
 
             return services;

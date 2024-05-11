@@ -1,12 +1,8 @@
-﻿using Backend.Application.DTO.Utils;
+﻿using Backend.Application.DTO.Places;
+using Backend.Application.DTO.Utils;
 using Backend.Application.Interfaces;
 using Backend.Domain;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend.External.Services
 {
@@ -36,5 +32,9 @@ namespace Backend.External.Services
             return rolesLazy.Value;
         }
 
+        public async Task<List<string>> GetUsernames(string input)
+        {
+            return await database.Users.Select(x => x.Username).Where(x=>x.Contains(input)).Take(10).ToListAsync(); 
+        }
     }
 }

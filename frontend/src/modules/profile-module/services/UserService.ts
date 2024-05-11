@@ -1,5 +1,6 @@
 import TokensDTO from "../../../models/Auth/TokensDTO";
 import UserInfoDTO from "../../../models/User/UserInfoDTO";
+import UserUpdateDTO from "../../../models/User/UserUpdateDTO";
 import { ADDRESS, USERINFO_PATH, VERIFY_PATH } from "../../../utils/APIConstants";
 
 const VerifyRefreshToken = (refreshToken: string | null) => {
@@ -62,7 +63,22 @@ const getUserInfo = (): Promise<UserInfoDTO> => {
 
         return getUserInfo()
     })
-
 }
 
-export { getUserInfo }
+const updateUserInfo = async (dto: UserUpdateDTO) => {
+    const responce = await fetch(ADDRESS + USERINFO_PATH, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: JSON.stringify(dto)
+    })
+
+    if (responce.status === 200) {
+        return true
+    }
+    return false
+}
+
+export { getUserInfo, updateUserInfo }

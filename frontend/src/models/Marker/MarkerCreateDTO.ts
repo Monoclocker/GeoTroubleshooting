@@ -5,9 +5,8 @@ interface MarkerCreateDTO {
     name: string,
     placeId: number,
     username: string,
-    coordinates: LngLat,
+    coordinates: number[],
     attachments: Attachment[],
-    tags: string[],
     description?: string
 }
 

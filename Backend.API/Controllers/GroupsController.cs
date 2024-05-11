@@ -1,50 +1,89 @@
-﻿//using Backend.Application.DTO.Group;
-//using Backend.Application.Exceptions;
-//using Backend.Application.Interfaces;
-//using Backend.External.Data;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
-//using System.Security.Claims;
+﻿using Backend.Application.DTO.Groups;
+using Backend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-//namespace Backend.Controllers
-//{
-//    [Route("api/v1/[controller]")]
-//    [ApiController]
-//    [Authorize]
-//    public class GroupsController : ControllerBase
-//    {
-//        readonly IGroupService groupService;
-//        readonly IConfiguration configuration;
+namespace Backend.Controllers
+{
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class GroupsController : ControllerBase
+    {
 
-//        public GroupsController(IConfiguration _configuration, IGroupService _groupService)
-//        {
-//            configuration = _configuration;
-//            groupService = _groupService;
-//        }
+        readonly IGroupService groupService;
 
-//        [Authorize]
-//        [HttpGet("{userId}")]
-//        public async Task<IActionResult> GetAllGroups(int userId)
-//        {
-//            List<GroupPublicDTO> groups = await groupService.GetGroupsAsync(userId);
+        public GroupsController(IGroupService _groupService)
+        {
+            groupService = _groupService;
+        }
 
-//            return Ok(groups);
-//        }
+        [HttpGet]
+        public async Task<IActionResult> GetGroups([FromQuery] string username, [FromQuery] int placeId, [FromQuery] int pageId)
+        {
+            var groups = await groupService.GetGroupsAsync(username, placeId, pageId);
 
-//        [HttpPost]
-//        public async Task<IActionResult> CreateGroup(GroupCreateDTO dto)
-//        {
-//            try
-//            {
-//                await groupService.CreateGroupAsync(dto);
-//            }
-//            catch (UnknownUserException userException)
-//            {
-//                return BadRequest(userException.Message);
-//            }
+            if (groups == null)
+            {
+                return NotFound();
+            }
 
-//            return Ok();
-//        }
-//    }
-//}
+            return Ok(groups);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup(GroupCreateDTO dto)
+        {
+            bool result = await groupService.CreateGroupAsync(dto);
+
+            if (!result)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        public record class AddGroupDTO(string username, int groupId);
+
+        [HttpPut]
+        public async Task<IActionResult> AddToGroup(AddGroupDTO dto)
+        {
+            bool result = await groupService.AddToGroup(dto.username, dto.groupId);
+
+            if (!result)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> RemoveFromGroup(AddGroupDTO dto)
+        {
+            bool result = await groupService.RemoveFromGroup(dto.username, dto.groupId);
+
+            if (!result)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]        
+        public async Task<IActionResult> DeleteGroup(int id)
+        {
+            bool result = await groupService.DeleteGroupAsyncById(id);
+            
+            if (!result)
+            {
+                return BadRequest();
+            }
+            return Ok();
+
+        }
+
+    }
+}

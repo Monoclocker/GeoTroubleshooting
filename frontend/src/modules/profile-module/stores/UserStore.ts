@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
-import { getUserInfo } from "../services/UserService"
+import { getUserInfo, updateUserInfo } from "../services/UserService"
 import UserInfoDTO from "../../../models/User/UserInfoDTO"
+import UserUpdateDTO from "../../../models/User/UserUpdateDTO"
 
 export class UserStore {
 
@@ -20,6 +21,10 @@ export class UserStore {
         
         this.user = { ...response }
 
+    }
+
+    async UpdateUser(info: UserUpdateDTO) {
+        return await updateUserInfo(info)
     }
 
     

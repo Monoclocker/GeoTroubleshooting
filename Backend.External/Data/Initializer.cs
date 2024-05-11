@@ -68,11 +68,34 @@ namespace Backend.External.Data
 
             await database.SaveChangesAsync();
 
+            if (database.Types.FirstOrDefault(x=>x.Name == "Sea") == null)
+            {
+                PlaceType newType = new PlaceType()
+                {
+                    Name = "Sea"
+                };
+
+                database.Types.Add(newType);
+
+                await database.SaveChangesAsync();
+
+                Place place = new Place()
+                {
+                    Name = "Azov Sea",
+                    Coordinates = [36.76951225744786f, 46.09193669306945f],
+                    Type = newType
+                };
+
+                database.Places.Add(place); 
+
+                await database.SaveChangesAsync();
+            }
+
             var db = mongo.GetDatabase(configuration["Mongo:Database"]);
 
-            MongoMapper mapper = new MongoMapper();
+            //MongoMapper mapper = new MongoMapper();
 
-            mapper.Map();
+            //mapper.Map();
 
             if (db.GetCollection<BsonDocument>(configuration["Mongo:MarkersCollection"]) is null)
             {

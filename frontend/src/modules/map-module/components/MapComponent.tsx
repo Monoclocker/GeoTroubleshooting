@@ -1,93 +1,97 @@
 //import { useState } from "react";
 import { DomEvent, DomEventHandlerObject, LngLat} from "@yandex/ymaps3-types"
 import { observer } from "mobx-react-lite"
-import { YMap, YMapComponentsProvider, YMapControls, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener, YMapZoomControl } from "ymap3-components"
+import { YMap, YMapComponentsProvider, YMapControlButton, YMapControls, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener, YMapZoomControl } from "ymap3-components"
 import { useStores } from "../../../hooks/RootContext"
 import MapHub from "../services/MapHub"
 import { useEffect, useState } from "react"
-import { Popover } from "antd"
+import { } from "antd"
 import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
-import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO"
 import { MarkerForm } from "./MarkerForm"
+import PlacesService from "../services/PlacesService"
+import PlaceSelector  from "./PlaceSelector"
+import { TimeSelector } from "./TimeSelector"
 
 const MapComponent = observer(() => {
 
     const { mapStore } = useStores()
-    const { connection } = MapHub()
 
-    const [location, setLocation] = useState({ center: [40, 13], zoom: 5 })
+    const [isPlaceSet, setIsPlaceSet] = useState(false)
 
     function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
-        console.log(event);
-        setLocation({ center: [event.coordinates[0], event.coordinates[1]], zoom: 5 })
+        mapStore.updateLocation({ ...mapStore.getLocation(), center: [event.coordinates[0], event.coordinates[1]] })
         mapStore.setFormData(event.coordinates)
         mapStore.showForm(true)
     }
 
-    useEffect(() => {
-
-        connection.invoke("GetMarkers").catch((err) => console.log(err))
-
-        connection.on("InitMarkers", (markers: MarkerInfoDTO[]) => {
-            mapStore.getMarkers(markers)
-        })
-
-        connection.on("NewMarker", (marker: MarkerCreateDTO) => {
-            mapStore.addMarker(marker)
-        })
-
-        return () => { }
-
-    }, [])
-    
-
-    
-
     return (
+        <>
 
-        <div style={{ height: "100%" }}>
-            <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
-                <YMap location={location}>
-                    <YMapDefaultSchemeLayer theme="dark" />
-                    <YMapDefaultFeaturesLayer  
-                    />
-                    <YMapListener
-                        layer='any'
-                        onClick={clickHandler}
-                    />
-                    <YMapControls position={"right"}>
-                        <YMapZoomControl>
+            <div style={{ height: "100%"}}>
+                
+                <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
 
-                        </YMapZoomControl>
-                    </YMapControls>
-
-                    {mapStore.markers.map(marker => {
-                        return <YMapDefaultMarker coordinates={marker.coordinates}></YMapDefaultMarker>
-                    })}
-
-                    {mapStore.formIsOpened ?
-                        <YMapDefaultMarker coordinates={location.center as LngLat}></YMapDefaultMarker>
-                        :
-                        null
-                    }
-
-                    {mapStore.formIsOpened ?
+                    <YMap location={mapStore.getLocation()}>
                         
-                        <Popover
-                            content={
-                                <MarkerForm />
-                            }
-                            open={true}
-                        >
-                            <div></div>
-                        </Popover>
-                        :
-                        null
-                    }
+                        <YMapDefaultSchemeLayer theme="dark" />
+                        <YMapDefaultFeaturesLayer
+                        />
+                        <YMapListener
+                            layer='any'
+                            onClick={clickHandler}
+                        />
 
-                </YMap>
-            </YMapComponentsProvider>
-        </div>
+                        <YMapControls position={"left top"}>
+                            <YMapControlButton>
+                                <PlaceSelector setActive={setIsPlaceSet}></PlaceSelector>
+                            </YMapControlButton>
+                        </YMapControls>
+
+                        <YMapControls position={"right"}>
+                            <YMapZoomControl>
+
+                            </YMapZoomControl>
+                        </YMapControls>
+
+                        
+
+                        {mapStore.markers.map(marker => {
+                            return <YMapDefaultMarker coordinates={marker.coordinates as LngLat}></YMapDefaultMarker>
+                        })}
+
+                        {mapStore.formIsOpened ?
+                            <YMapDefaultMarker coordinates={mapStore.getLocation().center as LngLat}></YMapDefaultMarker>
+                            :
+                            null
+                        }
+
+                        {isPlaceSet ?
+                            <YMapControls position={"top"}>
+                                <YMapControlButton>
+                                    <TimeSelector/>
+                                </YMapControlButton>
+                            </YMapControls>
+                            :
+                            null
+                        }
+
+                        {mapStore.formIsOpened ?
+                            <YMapControls position={"left bottom"}>
+                                <YMapControlButton>
+                                    <MarkerForm />
+                                </YMapControlButton>
+                            </YMapControls>
+                            :
+                            null
+                        }
+
+                    </YMap>
+                </YMapComponentsProvider>
+            </div>
+        </>
+        
+
+        
         
         
     )

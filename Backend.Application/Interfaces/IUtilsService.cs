@@ -10,5 +10,7 @@ namespace Backend.Application.Interfaces
     public interface IUtilsService
     {
         public Task<List<RolesDTO>> GetRoles();
+
+        public Task<List<string>> GetUsernames(string input);
     }
 }

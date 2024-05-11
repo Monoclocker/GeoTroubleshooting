@@ -1,6 +1,6 @@
 interface Attachment {
-    type: string,
-    path: string
+    Type: string,
+    Path: string
 }
 
 export default Attachment

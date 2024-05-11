@@ -14,11 +14,12 @@ namespace Backend.External.Data
                 cm.MapMember(x => x.UserId).SetIsRequired(true);
                 cm.MapMember(x=>x.PlaceId).SetIsRequired(true);
                 cm.MapMember(x => x.Name);
-                cm.MapMember(x => x.Tags);
+                //cm.MapMember(x => x.Tags);
                 cm.MapMember(x => x.TimeStamp);
                 cm.MapMember(x => x.Description);
                 cm.MapMember(x => x.Coordinates).SetIsRequired(true);
                 cm.MapMember(x => x.TimeStamp).SetIsRequired(true);
+                cm.MapMember(x => x.Attachments).SetIsRequired(true);
             });
         }
     }

@@ -2,8 +2,12 @@ import { makeAutoObservable } from "mobx";
 import { LngLat } from "@yandex/ymaps3-types";
 import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO";
 import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO";
+import MapLocation from "../../../models/General/MapLocation";
+
 
 export class MapStore {
+
+    currentLocation: MapLocation = { placeId: 0, zoom: 5, center: [20, 20] }
 
     markers: MarkerInfoDTO[] = []
 
@@ -19,7 +23,7 @@ export class MapStore {
         makeAutoObservable(this)
     }
 
-    addMarker(marker: MarkerCreateDTO) {
+    addMarker(marker: MarkerInfoDTO) {
 
         if (this.markers.length == 50) {
             this.markers.shift()
@@ -38,6 +42,14 @@ export class MapStore {
 
     showForm(state: boolean) {
         this.formIsOpened = state
+    }
+
+    getLocation() {
+        return { ...this.currentLocation }
+    }
+
+    updateLocation(location: MapLocation) {
+        this.currentLocation = location
     }
 
 }
