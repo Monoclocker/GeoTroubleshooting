@@ -73,6 +73,7 @@ namespace Backend.API
                 using (var scope = app.Services.CreateScope())
                 {
                     await scope.AddStartConfiguration(builder.Configuration);
+
                 }
 
             }
@@ -93,7 +94,7 @@ namespace Backend.API
             
             app.MapControllers();
             app.MapHub<MapHub>("/map");
-            //app.MapHub<ChatHub>("/chat");
+            app.MapHub<ChatHub>("/chat");
 
 
             app.Run();

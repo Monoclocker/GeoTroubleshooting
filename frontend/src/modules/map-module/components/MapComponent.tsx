@@ -1,28 +1,36 @@
-//import { useState } from "react";
-import { DomEvent, DomEventHandlerObject, LngLat} from "@yandex/ymaps3-types"
+﻿import { DomEvent, DomEventHandlerObject, LngLat} from "@yandex/ymaps3-types"
 import { observer } from "mobx-react-lite"
 import { YMap, YMapComponentsProvider, YMapControlButton, YMapControls, YMapDefaultFeaturesLayer, YMapDefaultMarker, YMapDefaultSchemeLayer, YMapListener, YMapZoomControl } from "ymap3-components"
 import { useStores } from "../../../hooks/RootContext"
-import MapHub from "../services/MapHub"
-import { useEffect, useState } from "react"
-import { } from "antd"
-import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
+import { Button, Popover } from "antd"
 import { MarkerForm } from "./MarkerForm"
-import PlacesService from "../services/PlacesService"
-import PlaceSelector  from "./PlaceSelector"
-import { TimeSelector } from "./TimeSelector"
+import { useEffect, useState } from "react"
+import FilterComponent from "./FilterComponent"
+import { useNavigate } from "react-router"
+import MarkerModal from "./MarkerModal"
+import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
 
 const MapComponent = observer(() => {
 
-    const { mapStore } = useStores()
+    const { mapStore, authStore } = useStores()
+    const [modalIsOpened, openModal] = useState(false)
+    const navigate = useNavigate()
+    const [formIsOpened, openForm] = useState(false)
+    const [infoIsOpened, openInfo] = useState(false)
+    const [clickedMarker, setMarker] = useState({} as MarkerInfoDTO)
 
-    const [isPlaceSet, setIsPlaceSet] = useState(false)
-
-    function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
-        mapStore.updateLocation({ ...mapStore.getLocation(), center: [event.coordinates[0], event.coordinates[1]] })
-        mapStore.setFormData(event.coordinates)
-        mapStore.showForm(true)
+    async function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
+        console.log(event)
+        await mapStore.updateLocation({ ...mapStore.CurrrentLocation, center: [event.coordinates[0], event.coordinates[1]] })
+        openForm(true)
     }
+
+    useEffect(() => {
+        if (!authStore.checkAuth()) {
+            navigate("/login")
+            return
+        }
+    }, [])
 
     return (
         <>
@@ -31,54 +39,72 @@ const MapComponent = observer(() => {
                 
                 <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
 
-                    <YMap location={mapStore.getLocation()}>
+                    <YMap location={mapStore.CurrrentLocation}>
                         
                         <YMapDefaultSchemeLayer theme="dark" />
                         <YMapDefaultFeaturesLayer
                         />
                         <YMapListener
+                            onUpdate={(event) => mapStore.updateLocation({ center: event.location.center, zoom: event.location.zoom })}
                             layer='any'
-                            onClick={clickHandler}
+                            onContextMenu={clickHandler}
                         />
 
                         <YMapControls position={"left top"}>
                             <YMapControlButton>
-                                <PlaceSelector setActive={setIsPlaceSet}></PlaceSelector>
+                                <Button onClick={() => openModal(true)}>Фильтры</Button>
                             </YMapControlButton>
                         </YMapControls>
 
+                        
+                        <YMapControls position={"right top"}>
+                            <YMapControlButton>
+                                <Popover title="Помощь" content={<div>
+                                    <p>Просмотреть метку - нажатие левой кнопкой мыши</p>
+                                    <p>Создать метку - нажатие правой кнопкой мыши</p>
+                                </div>}>
+                                    Помощь
+                                </Popover>
+                            </YMapControlButton>
+                        </YMapControls>
+
+                        {infoIsOpened ?
+                            <MarkerModal setOpen={openInfo} marker={clickedMarker} />
+                            :
+                            null
+                        }
+
                         <YMapControls position={"right"}>
                             <YMapZoomControl>
-
                             </YMapZoomControl>
                         </YMapControls>
 
+                        <FilterComponent isOpened={modalIsOpened} setIsOpened={openModal} />
                         
 
                         {mapStore.markers.map(marker => {
-                            return <YMapDefaultMarker coordinates={marker.coordinates as LngLat}></YMapDefaultMarker>
+                            return <>
+                                <YMapDefaultMarker onClick={() => { setMarker(marker); openInfo(true) }} coordinates={marker.coordinates as LngLat}></YMapDefaultMarker>
+                            </>
                         })}
 
-                        {mapStore.formIsOpened ?
-                            <YMapDefaultMarker coordinates={mapStore.getLocation().center as LngLat}></YMapDefaultMarker>
+                        {formIsOpened && mapStore.Filter.isReady ?
+                            <>
+                                <YMapDefaultMarker coordinates={mapStore.CurrrentLocation.center as LngLat}></YMapDefaultMarker>
+                                <YMapControls position={"left bottom"}>
+                                    <YMapControlButton>
+                                        <MarkerForm openForm={openForm} />
+                                    </YMapControlButton>
+                                </YMapControls>
+                            </> 
                             :
                             null
                         }
 
-                        {isPlaceSet ?
-                            <YMapControls position={"top"}>
+                        {mapStore.Filter.isReady ? 
+                            <YMapControls position={"bottom"}>
                                 <YMapControlButton>
-                                    <TimeSelector/>
-                                </YMapControlButton>
-                            </YMapControls>
-                            :
-                            null
-                        }
-
-                        {mapStore.formIsOpened ?
-                            <YMapControls position={"left bottom"}>
-                                <YMapControlButton>
-                                    <MarkerForm />
+                                    <Button onClick={() => navigate("/dashboard/chat")}>Перейти к чату</Button>
                                 </YMapControlButton>
                             </YMapControls>
                             :

@@ -5,5 +5,6 @@
         public DateTime startTimestamp {  get; set; }
         public DateTime endTimestamp { get; set; }
         public int placeId {  get; set; }
+        public string? markerId {  get; set; }
     }
 }

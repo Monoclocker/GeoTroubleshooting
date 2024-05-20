@@ -1,6 +1,6 @@
 export const ADDRESS: string = "http://localhost:5078/api/v1/"
 
-export const IMAGE_ADDRESS: string = "http://localhost:5078/"
+export const IMAGE_ADDRESS: string = "http://localhost:5078/images/"
 
 export const ROLES_UTILS: string = "Utils/Roles"
 
@@ -25,3 +25,5 @@ export const MARKERS_PATH: string = "Map"
 export const SEARCH_PATH: string = "Utils/Search?input="
 
 export const MAPHUB_PATH: string = "http://localhost:5078/map"
+
+export const CHATHUB_PATH: string = "http://localhost:5078/chat"

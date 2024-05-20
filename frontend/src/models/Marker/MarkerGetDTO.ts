@@ -1,7 +1,8 @@
 interface MarkersGetDTO {
-    startTimeStamp: Date
-    endTimeStamp: Date
-    placeId: number
+    startTimeStamp: number,
+    endTimeStamp: number,
+    placeId: number,
+    markerId?: string
 }
 
 export default MarkersGetDTO

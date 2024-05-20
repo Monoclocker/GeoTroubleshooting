@@ -2,6 +2,7 @@
 using Backend.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
@@ -18,9 +19,19 @@ namespace Backend.Controllers
             groupService = _groupService;
         }
 
+        public record class Groups(int groupsCount, List<GroupInfoDTO> groups);
+
         [HttpGet]
-        public async Task<IActionResult> GetGroups([FromQuery] string username, [FromQuery] int placeId, [FromQuery] int pageId)
+        public async Task<IActionResult> GetGroups([FromQuery] int placeId, [FromQuery] int pageId)
         {
+
+            string? username = User.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            if (username == null)
+            {
+                return NotFound();
+            }
+
             var groups = await groupService.GetGroupsAsync(username, placeId, pageId);
 
             if (groups == null)
@@ -28,8 +39,31 @@ namespace Backend.Controllers
                 return NotFound();
             }
 
-            return Ok(groups);
+            Groups result = new Groups(groupsCount: groups.Value.Item1, groups: groups.Value.Item2);
+
+            return Ok(result) ;
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetGroup(int id)
+        {
+            string? username = User.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+            if (username == null)
+            {
+                return NotFound();
+            }
+
+            var group = await groupService.GetGroupAsync(username, id);
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(group);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateGroup(GroupCreateDTO dto)

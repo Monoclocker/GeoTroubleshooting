@@ -2,25 +2,22 @@
 import GroupsService from "../services/GroupsService"
 import { Button, Form, Input } from "antd"
 import GroupCreateDTO from "../../../models/Groups/GroupCreateDTO"
-import { useNavigate } from "react-router"
+import { observer } from "mobx-react-lite"
 
-const GroupCreateForm = () => {
+const GroupCreateForm = observer(() => {
 
-    const { mapStore, userStore } = useStores();
-    const { CreateGroup } = GroupsService
-    const navigate = useNavigate()
+    const { mapStore, userStore, groupsStore } = useStores();
+    const { CreateGroup, GetGroups } = GroupsService
 
     const onFinish = async(values: GroupCreateDTO) => {
         values.username = userStore.User.username
-        values.placeId = mapStore.getLocation().placeId
-
-        console.log(values)
+        values.placeId = mapStore.Filter.placeId
 
         const result: boolean = await CreateGroup(values)
 
         if (result) {
-            navigate('/dashboard/chat')
-            return
+            const groups = await GetGroups({ pageId: 0, placeId: mapStore.Filter.placeId, username: userStore.User.username })
+            await groupsStore.GetGroups(groups)
         }
     }
 
@@ -52,6 +49,6 @@ const GroupCreateForm = () => {
         </Form>
 
     </>
-}
+})
 
 export default GroupCreateForm

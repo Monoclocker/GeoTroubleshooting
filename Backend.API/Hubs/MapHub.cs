@@ -18,9 +18,6 @@ namespace Backend.Hubs
         }
         public override async Task OnConnectedAsync()
         {
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, "Liquidator");
-
             await base.OnConnectedAsync();
 
         }
@@ -30,7 +27,7 @@ namespace Backend.Hubs
 
             MarkerInfoDTO newMarker = await markerService.AddMarkerAsync(marker);
 
-            await Clients.Group("Explorer").SendAsync("NewMarker", newMarker);
+            await Clients.All.SendAsync("NewMarker", newMarker);
 
         }
 

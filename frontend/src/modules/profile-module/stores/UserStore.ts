@@ -15,16 +15,8 @@ export class UserStore {
         makeAutoObservable(this)
     }
 
-    async GetUserInfo() {
-
-        const response = await getUserInfo()
-        
-        this.user = { ...response }
-
-    }
-
-    async UpdateUser(info: UserUpdateDTO) {
-        return await updateUserInfo(info)
+    async UpdateUser(info: UserInfoDTO) {
+        this.user = info
     }
 
     

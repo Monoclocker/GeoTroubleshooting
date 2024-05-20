@@ -6,23 +6,31 @@ import MapHub from "../services/MapHub"
 import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO"
 import { useState } from "react"
 import UtilsService from "../../../utils/UtilsService"
+import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-export const MarkerForm = observer(() => {
+interface Props {
+    openForm: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const MarkerForm = observer((props: Props) => {
 
     const { mapStore, userStore } = useStores()
     const { connection } = MapHub()
     const { UploadFiles } = UtilsService
     const [formFiles, setFormFiles] = useState<UploadFile[]>([])
-    const [tags, setTags] = useState([])
 
     const Finish = async (values: MarkerCreateDTO) => {
 
-        const location = { ...mapStore.getLocation() }
+        const location = { ...mapStore.CurrrentLocation }
+
+        console.log(values)
 
         values.username = userStore.User.username
-        values.placeId = location.placeId
+        values.placeId = mapStore.Filter.placeId
+
+        console.log(values)
 
         if (values.username === undefined || values.placeId === 0) {
             return
@@ -37,6 +45,11 @@ export const MarkerForm = observer(() => {
         const formData = new FormData()
 
         formFiles.forEach((file) => {
+            if (file.type == "") {
+                return
+            }
+            console.log(file.type)
+
             formData.append("files", file)
         })
 
@@ -46,8 +59,8 @@ export const MarkerForm = observer(() => {
             return
         }
 
-
         formFiles.forEach((file) => {
+          
             values.attachments.push({
                 Path: file.name,
                 Type: file.type!
@@ -56,13 +69,16 @@ export const MarkerForm = observer(() => {
 
         console.log(values)
 
+        props.openForm(false)
+
         connection.invoke("AddMarker", { ...values })
             .catch((error) => {
                 console.log(error)
+                return
             })
     }
 
-    const props: UploadProps = {
+    const uploadProps: UploadProps = {
         listType:"picture-card",
         onRemove: (file) => {
             const index = formFiles.indexOf(file);
@@ -116,7 +132,7 @@ export const MarkerForm = observer(() => {
                     <Input />
                 </Form.Item>
                 <Form.Item>
-                    <Upload {...props} onPreview={onPreview}>
+                    <Upload {...uploadProps} onPreview={onPreview}>
                         {formFiles.length < 3 ? "Загрузить" : null}
                     </Upload>
                 </Form.Item>
@@ -124,7 +140,7 @@ export const MarkerForm = observer(() => {
                     <Button htmlType="submit" type="primary">Сохранить</Button>
                 </Form.Item>
                 <Form.Item>
-                    <Button onClick={() => { mapStore.showForm(false) }} type="primary">Закрыть форму</Button>
+                    <Button onClick={() => { props.openForm(false) }} type="primary">Закрыть форму</Button>
                 </Form.Item>
 
             </Form>

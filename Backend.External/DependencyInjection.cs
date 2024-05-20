@@ -32,6 +32,9 @@ namespace Backend.External
             services.AddScoped<IPlacesService, PlacesService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IMapMarkerService, MapMarkerService>();
+            services.AddScoped<IMessageService, MessageService>();
+            services.AddSingleton<IPredictionService, PredictionService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             return services;
         }
@@ -40,18 +43,20 @@ namespace Backend.External
         {
             try
             {
-                var services = scope.ServiceProvider;
-                var mongo = services.GetService<MongoClient>();
-                var database = services.GetService<DatabaseContext>();
-
-                await database!.Database.EnsureCreatedAsync();
-
-                await Initializer.Initialize(configuration, mongo!, database!);
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+
+            var services = scope.ServiceProvider;
+            var mongo = services.GetService<MongoClient>();
+            var database = services.GetService<DatabaseContext>();
+
+            await database!.Database.EnsureCreatedAsync();
+
+            await Initializer.Initialize(configuration, mongo!, database!);
 
             return scope;
 

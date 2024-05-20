@@ -12,7 +12,7 @@ namespace Backend.Domain
         public int PlaceId { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; } = default!;
-        //public List<string> Tags { get; set; } = default!;
+        public string Label { get; set; } = default!;
         public DateTime TimeStamp { get; set; }
         public string? Description { get; set; }
         public double[] Coordinates { get; set; } = default!;

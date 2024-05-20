@@ -13,7 +13,37 @@ namespace Backend.External.Services
             this.database = database;
         }
 
-        public async Task<List<GroupInfoDTO>?> GetGroupsAsync(string username, int placeId, int pageId)
+        public async Task<GroupInfoDTO?> GetGroupAsync(string username, int groupId)
+        {
+            Group? group = await database.Groups
+                .AsNoTracking()
+                .Include(x => x.GroupUsers)
+                .ThenInclude(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == groupId);
+
+            if(group == null || !group.GroupUsers.Any(x => x.User.Username == username))
+            {
+                return null;
+            }
+
+            GroupInfoDTO dto = new GroupInfoDTO()
+            {
+                description = group.Description,
+                id = group.Id,
+                name = group.Name,
+                users = new List<GroupUser>()
+
+            };
+
+            foreach (var _user in group.GroupUsers)
+            {
+                dto.users.Add(new GroupUser { username = _user.User.Username, isAdmin = _user.IsAdmin });
+            }
+
+            return dto;
+        }
+
+        public async Task<(int,List<GroupInfoDTO>)?> GetGroupsAsync(string username, int placeId, int pageId)
         {
             List<GroupInfoDTO> groups = new List<GroupInfoDTO>();
 
@@ -24,13 +54,19 @@ namespace Backend.External.Services
                 return null;
             }
 
-            List<Group> dbGroups = await database.Groups
+            var dbQuery = database.Groups
+                .AsNoTracking()
+                .OrderByDescending(x => x.Id)
                 .Include(x => x.GroupUsers)
-                .ThenInclude(x=>x.User)
-                .Where(x => x.PlaceId == placeId && x.GroupUsers.Any(u => u.UserId == user.Id))
-                .Skip(pageId * 10)
-                .Take(10)
-                .ToListAsync();
+                .ThenInclude(x => x.User)
+                .Where(x => x.PlaceId == placeId && x.GroupUsers.Any(u => u.UserId == user.Id));
+
+            int count = dbQuery.Count();
+
+            List<Group> dbGroups = await dbQuery
+                                .Skip(pageId * 10)
+                                .Take(10)
+                                .ToListAsync();
 
             foreach (Group group in dbGroups)
             {
@@ -51,7 +87,7 @@ namespace Backend.External.Services
                 groups.Add(dto);
             }
 
-            return groups;
+            return (count, groups);
         }
 
         public async Task<bool> CreateGroupAsync(GroupCreateDTO dto)
@@ -62,7 +98,6 @@ namespace Backend.External.Services
                 Name = dto.name,
                 PlaceId = dto.placeId,
                 GroupUsers = new List<GroupUsers>()
-                
             };
 
             User? user = await database.Users.FirstOrDefaultAsync(x => x.Username == dto.username);

@@ -57,6 +57,7 @@ namespace Backend.External.Services
             user.FirstName = dto.firstname;
             user.LastName = dto.surname;
             user.Birtdate = dto.birthdate;
+            user.Email = dto.email;
 
             if (dto.photo != null)
             {

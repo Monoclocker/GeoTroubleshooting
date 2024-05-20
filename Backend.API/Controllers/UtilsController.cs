@@ -9,9 +9,11 @@ namespace Backend.API.Controllers
     public class UtilsController : ControllerBase
     {
         IUtilsService utilsService;
-        public UtilsController(IUtilsService utilsService) 
+        IConfiguration configuration;
+        public UtilsController(IUtilsService utilsService, IConfiguration configuration) 
         {
             this.utilsService = utilsService;
+            this.configuration = configuration;
         }
 
         [HttpGet("Roles")]
@@ -26,18 +28,21 @@ namespace Backend.API.Controllers
             return Ok(await utilsService.GetUsernames(input));
         }
 
-        public record class FilesPath(List<string> filesNames);
-
         [Authorize]
         [HttpPost("Upload")]
-        public async Task<IActionResult> LoadFiles(List<IFormFile> files)
+        public async Task<IActionResult> LoadFiles(List<IFormFile>? files)
         {
+
+            if(files == null)
+            {
+                return Ok();
+            }
 
             foreach (var file in files)
             {
-                if (!System.IO.File.Exists($"wwwroot/images/{file.FileName}"))
+                if (!System.IO.File.Exists(Path.Combine(configuration["fileStorage"]!, file.FileName)))
                 {
-                    using (Stream stream = new FileStream($"wwwroot/images/{file.FileName}", FileMode.CreateNew))
+                    using (Stream stream = new FileStream(Path.Combine(configuration["fileStorage"]!, file.FileName), FileMode.CreateNew))
                     {
                         await file.CopyToAsync(stream);
                     }

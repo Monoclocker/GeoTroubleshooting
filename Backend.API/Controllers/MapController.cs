@@ -16,11 +16,21 @@ namespace Backend.API.Controllers
             this.markerService = markerService;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetMarkers(MarkersGetDTO dto)
+        public async Task<IActionResult> GetMarkers(
+            [FromQuery] long startTimestamp,
+            [FromQuery] long endTimestamp,
+            [FromQuery] int placeId,
+            [FromQuery] string? markerId)
         {
-            var markers = await markerService.GetMarkersAsync(dto);
+
+            var markers = await markerService.GetMarkersAsync(new MarkersGetDTO() { 
+                startTimestamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(startTimestamp), 
+                endTimestamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(endTimestamp), 
+                placeId = placeId,
+                markerId = markerId
+            });
 
             return Ok(markers);
         }

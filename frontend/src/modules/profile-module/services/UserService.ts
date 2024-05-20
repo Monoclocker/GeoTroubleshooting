@@ -1,71 +1,38 @@
-import TokensDTO from "../../../models/Auth/TokensDTO";
 import UserInfoDTO from "../../../models/User/UserInfoDTO";
 import UserUpdateDTO from "../../../models/User/UserUpdateDTO";
-import { ADDRESS, USERINFO_PATH, VERIFY_PATH } from "../../../utils/APIConstants";
+import { ADDRESS, USERINFO_PATH} from "../../../utils/APIConstants";
+import { VerifyRefreshToken } from "../../auth-module/exports";
 
-const VerifyRefreshToken = (refreshToken: string | null) => {
+const getUserInfo = async(): Promise<UserInfoDTO | null> => {
 
-    if (refreshToken == null) {
-        return false
-    }
-
-    const token: TokensDTO = { refreshToken: refreshToken } 
-
-    fetch(ADDRESS + VERIFY_PATH, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify(token)
-    })
-        .then((responce) => {
-            if (responce.status == 403) {
-                return false
-            }
-
-            responce.json().then((data) => {
-                const { accessToken, refreshToken }: TokensDTO = data as TokensDTO
-                localStorage.setItem("accessToken", accessToken!)
-                localStorage.setItem("refreshToken", refreshToken!)
-            })
-
-            return true
-
-        })
-        .catch(() => {
-            return false
-        })
-}
-
-const getUserInfo = (): Promise<UserInfoDTO> => {
-
-    return fetch(ADDRESS + USERINFO_PATH, {
+    const responce = await fetch(ADDRESS + USERINFO_PATH, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
             "Accept": "application/json",
             "Authorization": "Bearer " + localStorage.getItem("accessToken")
         }
-    }).then((response) => {
-
-        if (response.status == 200) {
-            return response.json()
-        }
-
-        if (response.status == 401 && !VerifyRefreshToken(localStorage.getItem("refreshToken"))) {
-            localStorage.removeItem("accessToken")
-            localStorage.removeItem("refreshToken")
-            window.location.reload()
-            Promise.reject()
-            return
-        }
-
-        return getUserInfo()
     })
+
+    if (responce.status == 200) {
+        const data = await responce.json() as UserInfoDTO
+        return data
+    }
+
+    if (responce.status == 401 && !await VerifyRefreshToken()) {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        window.location.reload()
+        return null
+    }
+    else {
+        return await getUserInfo()
+    }
+
+    
 }
 
-const updateUserInfo = async (dto: UserUpdateDTO) => {
+const updateUserInfo = async (dto: UserUpdateDTO): Promise<boolean> => {
     const responce = await fetch(ADDRESS + USERINFO_PATH, {
         method: "PUT",
         headers: {
@@ -78,7 +45,16 @@ const updateUserInfo = async (dto: UserUpdateDTO) => {
     if (responce.status === 200) {
         return true
     }
-    return false
+
+    if (responce.status == 401 && !await VerifyRefreshToken()) {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        window.location.reload()
+        return false
+    }
+    else {
+        return await updateUserInfo(dto)
+    }
 }
 
-export { getUserInfo, updateUserInfo }
+export default { getUserInfo, updateUserInfo }

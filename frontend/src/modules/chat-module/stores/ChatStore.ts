@@ -1,21 +1,25 @@
 import { makeAutoObservable } from "mobx";
-import { IMessage } from "../../../vite-env";
+import MessageDTO from "../../../models/Message/MessageDTO";
 
 
 class ChatStore {
 
-    messages: IMessage[] = []
+    messages: MessageDTO[] = []
+
+    get Messages() {
+        return this.messages
+    }
 
     constructor() {
         makeAutoObservable(this)
     }
 
-    addMessage(message: IMessage) {
-        this.messages = [...this.messages, message]
+    async addMessage(message: MessageDTO) {
+        this.messages = [message, ...this.messages]
     }
 
-    initMessages(messages: IMessage[]) {
-        this.messages = [...messages, ...this.messages]
+    async setMessages(messages: MessageDTO[]) {
+        this.messages = messages
     }
 }
 

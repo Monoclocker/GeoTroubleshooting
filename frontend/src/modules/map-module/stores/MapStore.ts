@@ -1,29 +1,38 @@
 import { makeAutoObservable } from "mobx";
 import { LngLat } from "@yandex/ymaps3-types";
-import MarkerCreateDTO from "../../../models/Marker/MarkerCreateDTO";
 import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO";
 import MapLocation from "../../../models/General/MapLocation";
+import Filter from "../../../models/General/Filter";
+
 
 
 export class MapStore {
 
-    currentLocation: MapLocation = { placeId: 0, zoom: 5, center: [20, 20] }
-
+    currentLocation: MapLocation = { zoom: 5, center: [20, 20] }
+    filter: Filter = {} as Filter
     markers: MarkerInfoDTO[] = []
-
-    markerFormCoordinates?: LngLat
-
     formIsOpened: boolean = false
 
-    get Marker() {
-        return [this.markerFormCoordinates?.[0], this.markerFormCoordinates?.[1]] as LngLat
+    get FormIsOpened() {
+        return this.formIsOpened
     }
 
+    get CurrrentLocation() {
+        return { ...this.currentLocation }
+    }
+
+    get Filter() {
+        return { ...this.filter }
+    }
     constructor() {
         makeAutoObservable(this)
     }
 
-    addMarker(marker: MarkerInfoDTO) {
+    async SetFilter(newFilter: Filter) {
+        this.filter = newFilter
+    }
+
+    async addMarker(marker: MarkerInfoDTO) {
 
         if (this.markers.length == 50) {
             this.markers.shift()
@@ -32,23 +41,11 @@ export class MapStore {
         this.markers = [...this.markers, marker]
     }
 
-    getMarkers(markers: MarkerInfoDTO[]) {
+    async getMarkers(markers: MarkerInfoDTO[]) {
         this.markers = markers
     }
 
-    setFormData(coordinates?: LngLat) {
-        this.markerFormCoordinates = coordinates
-    }
-
-    showForm(state: boolean) {
-        this.formIsOpened = state
-    }
-
-    getLocation() {
-        return { ...this.currentLocation }
-    }
-
-    updateLocation(location: MapLocation) {
+    async updateLocation(location: MapLocation) {
         this.currentLocation = location
     }
 

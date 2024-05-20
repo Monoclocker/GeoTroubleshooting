@@ -1,8 +1,10 @@
 ﻿import { AutoComplete, Button, Input, SelectProps } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UtilsService from "../../../utils/UtilsService";
 import GroupsService from "../services/GroupsService";
 import AddGroupDTO from "../../../models/Groups/AddGroupDTO";
+import GroupUser from "../../../models/Groups/GroupUser";
+import { useStores } from "../../../hooks/RootContext";
 
 interface props {
     id: number
@@ -11,12 +13,26 @@ interface props {
 const Settings = (props: props) => {
 
     const { GetUsernames } = UtilsService
+    const { GetGroup } = GroupsService
     const { AddToGroup, RemoveFromGroup } = GroupsService
-    
+    const { userStore } = useStores()
 
-    const [users, setUsers] = useState<string[]>([])
+    const [users, setUsers] = useState<GroupUser[]>([])
 
     const [options, setOptions] = useState<SelectProps<object>['options']>([]);
+
+    useEffect(() => {
+        const func = async () => {
+            const group = await GetGroup(props.id)
+
+            if (group !== undefined) {
+                setUsers(group.users)
+            }
+        }
+
+        func()
+
+    }, [])
 
     const handleSearch = async (value: string) => {
         if (value === null) {
@@ -43,15 +59,22 @@ const Settings = (props: props) => {
         const result = await AddToGroup(values)
 
         if (result) {
-            setUsers([...users, value])
+            setUsers([...users, { isAdmin: false, username:value }])
         }
 
     };
 
     const deleteUser = async (username: string) => {
+
+        users.forEach(user => console.log(user.username == userStore.User.username))
+
+        if (users.filter(user => user.username == userStore.User.username)[0].isAdmin == false) {
+            return
+        }
+
         const result = await RemoveFromGroup({ username: username, groupId: props.id })
         if (result) {
-            setUsers(users.filter((user) => user != username))
+            setUsers(users.filter((user) => user.username != username))
         }
     }
 
@@ -69,8 +92,12 @@ const Settings = (props: props) => {
             </AutoComplete>
             {users.map((user) => {
                 return (<p>
-                    <span>{user}</span>
-                    <Button onClick={() => deleteUser(user)}>Удалить</Button>
+                    <span>{user.username}</span>
+                    {user.username !== userStore.User.username ?
+                        <Button onClick={() => deleteUser(user.username)}>X</Button>
+                        :
+                        null
+                    }
                 </p>)
             })}
             

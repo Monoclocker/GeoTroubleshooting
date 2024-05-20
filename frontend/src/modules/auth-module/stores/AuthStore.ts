@@ -6,16 +6,12 @@ import UserLoginDTO from "../../../models/Auth/UserLoginDTO"
 
 export class AuthStore {
 
+    constructor() {
+        makeAutoObservable(this)
+    }
+
     checkAuth() {
-
-        console.log(localStorage.getItem("accessToken") == null)
-
-        if (localStorage.getItem("accessToken") === null
-            && localStorage.getItem("refreshToken") === null) {
-            return false
-        }
-
-        return true
+        return localStorage.getItem("accessToken") !== null
     }
 
     logout() {

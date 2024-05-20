@@ -6,7 +6,7 @@
         public string name { get; set; } = default!;
         public string? description { get; set; }
 
-        public List<GroupUser> users { get; set; } = default!;
+        public List<GroupUser>? users { get; set; }
 
     }
 }

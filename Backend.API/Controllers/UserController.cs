@@ -39,8 +39,6 @@ namespace Backend.Controllers
                 return NotFound();
             }
 
-            info.photo = "images/" + info.photo;
-
             return Ok(info);
             
         }

@@ -11,6 +11,7 @@
   <ItemGroup>
     <Folder Include="public\" />
     <Folder Include="src\models\User\" />
+    <Folder Include="src\models\Message\" />
     <Folder Include="src\modules\chat-module\stores\" />
     <Folder Include="src\modules\map-module\stores\" />
   </ItemGroup>

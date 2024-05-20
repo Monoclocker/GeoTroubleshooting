@@ -14,8 +14,9 @@ const Groups = observer(() => {
 
     useEffect(() => {
         const func = async() => {
-            const groups = await GetGroups({ pageId: page, username: userStore.User.username, placeId: mapStore.getLocation().placeId })
-            groupsStore.GetGroups(groups)
+            const groups = await GetGroups({ pageId: page, username: userStore.User.username, placeId: mapStore.Filter.placeId })
+            console.log(groups)
+            await groupsStore.GetGroups(groups.groups)
         }
 
         func()

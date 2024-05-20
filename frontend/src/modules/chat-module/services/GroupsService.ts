@@ -5,7 +5,7 @@ import GroupInfoDTO from "../../../models/Groups/GroupInfoDTO"
 import { ADDRESS, GROUPS_PATH } from "../../../utils/APIConstants"
 
 const GetGroups = async (data: GetGroupDTO) => {
-    const responce = await fetch(ADDRESS + GROUPS_PATH + "?pageId=" + data.pageId + "&username=" + data.username + "&placeId=" + data.placeId, {
+    const responce = await fetch(ADDRESS + GROUPS_PATH + "?pageId=" + data.pageId + "&placeId=" + data.placeId, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -18,7 +18,25 @@ const GetGroups = async (data: GetGroupDTO) => {
         return []
     }
 
-    return await responce.json() as GroupInfoDTO[]
+    return await responce.json() as { groupsCount: number, groups: GroupInfoDTO[] }
+
+}
+
+const GetGroup = async (groupId: number) => {
+    const responce = await fetch(ADDRESS + GROUPS_PATH + "/" + groupId.toString(), {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+            "Accept": "application/json"
+        }
+    })
+
+    if (!responce.ok) {
+        return undefined
+    }
+
+    return await responce.json() as GroupInfoDTO
 
 }
 
@@ -94,4 +112,4 @@ const DeleteGroup = async (id: number) => {
 }
 
 
-export default { GetGroups, CreateGroup, AddToGroup, RemoveFromGroup, DeleteGroup }
+export default { GetGroup, GetGroups, CreateGroup, AddToGroup, RemoveFromGroup, DeleteGroup }

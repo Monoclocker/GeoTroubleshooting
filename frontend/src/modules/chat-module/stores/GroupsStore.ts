@@ -10,10 +10,10 @@ class GroupsStore {
     }
 
     get UserGroups() {
-        return this.userGroups.length
+        return { ...this.userGroups }
     }
 
-    GetGroups(groups: GroupInfoDTO[]) {
+    async GetGroups(groups: GroupInfoDTO[]) {
         this.userGroups = groups
     }
 

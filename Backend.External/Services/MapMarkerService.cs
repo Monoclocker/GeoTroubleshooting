@@ -13,11 +13,16 @@ namespace Backend.External.Services
         IMongoDatabase mongo;
         IDatabase database;
         IConfiguration configuration;
-        public MapMarkerService(IMongoDatabase mongo, IConfiguration configuration, IDatabase database)
+        IPredictionService predictionService;
+        INotificationService emailService;
+        public MapMarkerService(IMongoDatabase mongo, IConfiguration configuration, IDatabase database,
+            IPredictionService predictionService, INotificationService emailService)
         {
             this.mongo = mongo;
             this.configuration = configuration;
             this.database = database;
+            this.predictionService = predictionService;
+            this.emailService = emailService;
         }
 
         public async Task<List<MarkerInfoDTO>> GetMarkersAsync(MarkersGetDTO dto)
@@ -25,9 +30,22 @@ namespace Backend.External.Services
             var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
             var builder = Builders<Marker>.Filter;
-            var filter = builder.Where(x => x.TimeStamp <= dto.endTimestamp && x.TimeStamp >= dto.startTimestamp && x.PlaceId == dto.placeId);
 
-            var markers = await collection.Find(filter).ToListAsync();;
+            FilterDefinition<Marker> filter;
+
+            if(dto.markerId == null)
+            {
+                filter = builder.Where(x => x.TimeStamp <= dto.endTimestamp && x.TimeStamp >= dto.startTimestamp && x.PlaceId == dto.placeId);
+            }
+
+            else
+            {
+                filter = builder.Where(x => x.TimeStamp <= dto.endTimestamp && x.TimeStamp >= dto.startTimestamp && x.PlaceId == dto.placeId && x.Id.ToString().Contains(dto.markerId));
+            }
+
+            var markers = await collection.Find(filter).ToListAsync();
+
+            Console.WriteLine(markers.Count);
 
             List<MarkerInfoDTO> dtoList = new List<MarkerInfoDTO>();
 
@@ -40,8 +58,10 @@ namespace Backend.External.Services
                     coordinates = marker.Coordinates.ToList(),
                     timestamp = marker.TimeStamp,
                     attachments = marker.Attachments,
-                    //tags = marker.Tags.ToArray(),
                     description = marker.Description,
+                    label = marker.Label,
+                    placeId = marker.PlaceId,
+                    
                 };
 
                 User user = await database.Users.FirstAsync(x => x.Id == marker.UserId);
@@ -58,6 +78,19 @@ namespace Backend.External.Services
         {
             var collection = mongo.GetCollection<Marker>(configuration["Mongo:MarkersCollection"]);
 
+            List<string> imagePath = new List<string>();
+
+            foreach (Attachment attachment in dto.attachments)
+            {
+                string type = attachment.Type.Split('/')[0];
+                if (type.ToLower() == "image")
+                {
+                    imagePath.Add(Path.Combine(configuration["fileStorage"]!,attachment.Path));
+                }
+            }
+
+            var predictionResult = await predictionService.Predict(imagePath);
+
             Marker newMarker = new Marker()
             {
                 Id = Guid.NewGuid(),
@@ -65,12 +98,17 @@ namespace Backend.External.Services
                 TimeStamp = DateTime.UtcNow,
                 Description = dto.description,
                 Attachments = dto.attachments.ToList(),
-                //Tags = dto.tags.ToList(),
                 Coordinates = dto.coordinates.ToArray(),
                 PlaceId = dto.placeId,
+                Label = predictionResult.Item1
             };
 
-            Console.WriteLine(newMarker.Id.ToString());
+            if (predictionResult.Item3)
+            {
+                await emailService.SendEmail(new MarkerPredictionDTO() { markerId = newMarker.Id.ToString(), 
+                    predictionLabel = predictionResult.Item1, probability = predictionResult.Item2, 
+                    placeId = newMarker.PlaceId });
+            }
 
             User user = await database.Users.FirstAsync(x => x.Username == dto.username);
 
@@ -88,6 +126,7 @@ namespace Backend.External.Services
                 placeId = dto.placeId,
                 timestamp = newMarker.TimeStamp,
                 username = dto.username,
+                label = predictionResult.Item1
             };
 
             return info;
@@ -99,8 +138,7 @@ namespace Backend.External.Services
             Marker marker = await collection.FindOneAndUpdateAsync(x => x.Id == Guid.Parse(dto.id), 
                 new BsonDocument("$set", 
                     new BsonDocument { 
-                        { "Description", dto.description },
-                        //{ "Tags", new BsonArray(dto.tags) }
+                        { "Description", dto.description }
                     }));
 
             return true;
