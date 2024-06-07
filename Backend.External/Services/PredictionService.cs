@@ -1,7 +1,5 @@
 ﻿using Backend.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using System.Collections.ObjectModel;
@@ -40,7 +38,13 @@ namespace Backend.External.Services
 
                 var result = model.RunInference(new ReadOnlyCollection<NamedOnnxValue>(new List<NamedOnnxValue>() { inputTensor }));
 
+                Console.WriteLine(result);
+
                 var output = result.First().AsEnumerable<float>().ToArray();
+
+                foreach(var value in  output)
+                    Console.WriteLine(value);
+
 
                 var index = Array.IndexOf(output, output.Max());
 

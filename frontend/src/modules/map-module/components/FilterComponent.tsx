@@ -1,14 +1,13 @@
 ﻿import React, { useEffect, useState } from "react"
-import PlacesService from "../services/PlacesService"
 import { Button, Cascader, CascaderProps, Checkbox, DatePicker, Input } from "antd"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../hooks/RootContext"
 import { DomEvent, LngLat } from "@yandex/ymaps3-types"
-import Filter from "../../../models/General/Filter"
 import Modal from "antd/es/modal/Modal"
 import MapHub from "../services/MapHub"
 import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
 import MarkersService from "../services/MarkersService"
+import UtilsService from "../../../utils/UtilsService"
 
 interface Option {
     value: number | number[]
@@ -24,7 +23,7 @@ const FilterComponent = observer((props: Props) => {
 
     const { RangePicker } = DatePicker
     const [options, setOptions] = useState<Option[]>([])
-    const { GetPlaces } = PlacesService
+    const { GetPlaces } = UtilsService
     const { GetMarkers } = MarkersService
     const { connection } = MapHub()
     const { mapStore } = useStores()
@@ -41,23 +40,27 @@ const FilterComponent = observer((props: Props) => {
                 const _options: Option[] = []
 
                 locations.forEach((type) => {
-                    const option: Option = {
-                        label: type.name,
-                        value: type.id
+                    if (type.places.length !== 0) {
+                        const option: Option = {
+                            label: type.name,
+                            value: type.id
+                        }
+
+                        option.children = []
+
+                        type.places.forEach((place) => {
+
+                            option.children?.push(
+                                {
+                                    label: place.name,
+                                    value: [place.coordinates[0], place.coordinates[1], place.id]
+                                }
+                            )
+                        })
+
+                        _options.push(option)
                     }
-
-                    option.children = []
-
-                    type.places.forEach((place) => {
-                        option.children?.push(
-                            {
-                                label: place.name,
-                                value: [place.coordinates[0], place.coordinates[1], place.id]
-                            }
-                        )
-                    })
-
-                    _options.push(option)
+                    
                 })
                 setOptions(_options)
             }

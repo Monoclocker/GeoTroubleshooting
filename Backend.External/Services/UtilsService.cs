@@ -1,7 +1,5 @@
-﻿using Backend.Application.DTO.Places;
-using Backend.Application.DTO.Utils;
+﻿using Backend.Application.DTO.Utils;
 using Backend.Application.Interfaces;
-using Backend.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.External.Services

@@ -25,18 +25,6 @@ namespace Backend.External.Services
                 new Claim(type: ClaimTypes.Role, roleName.ToString())
             };
 
-            //Console.WriteLine(configuration["jwt:Issuer"]);
-
-            //JwtSecurityToken jwt = new(
-            //    issuer: configuration["jwt:Issuer"],
-            //    expires: DateTime.Now.AddMinutes(lifeDurationMinutes),
-            //    claims: claims,
-            //    signingCredentials: new SigningCredentials(
-            //        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:Key"]!)), SecurityAlgorithms.HmacSha256)
-            //);
-
-            //return new JwtSecurityTokenHandler().WriteToken(jwt);
-
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Issuer = configuration["jwt:Issuer"],

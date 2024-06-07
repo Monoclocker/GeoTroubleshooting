@@ -2,15 +2,21 @@
 using Backend.Application.Interfaces;
 using Backend.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Driver;
 
 namespace Backend.External.Services
 {
     public class GroupService: IGroupService
     {
         IDatabase database;
-        public GroupService(IDatabase database)
+        IMongoDatabase mongo;
+        IConfiguration configuration;
+        public GroupService(IDatabase database, IMongoDatabase mongo, IConfiguration configuration)
         {
             this.database = database;
+            this.mongo = mongo;
+            this.configuration = configuration;
         }
 
         public async Task<GroupInfoDTO?> GetGroupAsync(string username, int groupId)
@@ -179,6 +185,13 @@ namespace Backend.External.Services
             {
                 return false;
             }
+
+            var collection = mongo.GetCollection<Message>(configuration["Mongo:MessageCollection"]);
+
+            var builder = Builders<Message>.Filter;
+            FilterDefinition<Message> filter = builder.Where(x => x.GroupId == id);
+
+            await collection.DeleteManyAsync(filter);
 
             database.Groups.Remove(group);
 

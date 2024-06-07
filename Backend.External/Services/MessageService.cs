@@ -4,11 +4,6 @@ using Backend.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend.External.Services
 {
@@ -26,9 +21,21 @@ namespace Backend.External.Services
 
         public async Task<MessageDTO?> CreateMessage(MessageDTO messageDTO)
         {
-            User? user = await database.Users.FirstOrDefaultAsync(x => x.Username == messageDTO.username);
+            User? user = await database.Users.Include(x=>x.Groups).FirstOrDefaultAsync(x => x.Username == messageDTO.username);
 
             if(user == null)
+            {
+                return null;
+            }
+
+            if(user.Groups.FirstOrDefault(x=>x.Id == messageDTO.groupId) == null)
+            {
+                return null;
+            }
+
+            Group? group = await database.Groups.FirstOrDefaultAsync(x => x.Id == messageDTO.groupId);
+
+            if(group == null)
             {
                 return null;
             }

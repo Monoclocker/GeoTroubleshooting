@@ -1,10 +1,13 @@
-﻿import { AutoComplete, Button, Input, SelectProps } from "antd";
+﻿import { AutoComplete, Button, Card, SelectProps } from "antd";
 import { useEffect, useState } from "react";
 import UtilsService from "../../../utils/UtilsService";
 import GroupsService from "../services/GroupsService";
 import AddGroupDTO from "../../../models/Groups/AddGroupDTO";
 import GroupUser from "../../../models/Groups/GroupUser";
 import { useStores } from "../../../hooks/RootContext";
+import { useNavigate } from "react-router";
+import ChatHub from "../services/ChatHub";
+import { Link } from "react-router-dom";
 
 interface props {
     id: number
@@ -13,12 +16,13 @@ interface props {
 const Settings = (props: props) => {
 
     const { GetUsernames } = UtilsService
-    const { GetGroup } = GroupsService
+    const { GetGroup, DeleteGroup } = GroupsService
     const { AddToGroup, RemoveFromGroup } = GroupsService
     const { userStore } = useStores()
-
+    const navigate = useNavigate()
     const [users, setUsers] = useState<GroupUser[]>([])
-
+    const [adminUsername, setUsername] = useState<string>("")
+    const { connection } = ChatHub()
     const [options, setOptions] = useState<SelectProps<object>['options']>([]);
 
     useEffect(() => {
@@ -27,6 +31,11 @@ const Settings = (props: props) => {
 
             if (group !== undefined) {
                 setUsers(group.users)
+                setUsername(group.users.filter(x => x.isAdmin)[0].username)
+            }
+            else {
+                navigate("/dashboard/chat")
+                return
             }
         }
 
@@ -78,6 +87,15 @@ const Settings = (props: props) => {
         }
     }
 
+    const deleteGroup = async () => {
+        const result = await DeleteGroup(props.id)
+        if (result) {
+            connection.off("NewMessage")
+            navigate("/dashboard/chat")
+            return
+        }
+    }
+
     return (
         <>
             <AutoComplete
@@ -88,16 +106,24 @@ const Settings = (props: props) => {
                 onSearch={handleSearch}
                 size="large"
             >
-                {/*<Input.Search size="large" placeholder="input here" enterButton />*/}
             </AutoComplete>
+
+            {userStore.User.username === adminUsername ? 
+                <Button onClick={() => deleteGroup()}>Удалить группу</Button>
+                :
+                null
+            }
+            
             {users.map((user) => {
                 return (<p>
-                    <span>{user.username}</span>
-                    {user.username !== userStore.User.username ?
-                        <Button onClick={() => deleteUser(user.username)}>X</Button>
-                        :
-                        null
-                    }
+                    <Card>
+                        <Link to={"/profile/" + user.username }>{user.username}</Link>
+                        {user.username === userStore.User.username || userStore.User.username !== adminUsername ?
+                            null :
+                            <Button onClick={() => deleteUser(user.username)}>Удалить</Button>
+                        }
+                    </Card>
+                    
                 </p>)
             })}
             

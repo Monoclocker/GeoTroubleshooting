@@ -4,7 +4,7 @@ import { YMap, YMapComponentsProvider, YMapControlButton, YMapControls, YMapDefa
 import { useStores } from "../../../hooks/RootContext"
 import { Button, Popover } from "antd"
 import { MarkerForm } from "./MarkerForm"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import FilterComponent from "./FilterComponent"
 import { useNavigate } from "react-router"
 import MarkerModal from "./MarkerModal"
@@ -12,7 +12,7 @@ import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO"
 
 const MapComponent = observer(() => {
 
-    const { mapStore, authStore } = useStores()
+    const { mapStore, authStore, userStore } = useStores()
     const [modalIsOpened, openModal] = useState(false)
     const navigate = useNavigate()
     const [formIsOpened, openForm] = useState(false)
@@ -20,26 +20,21 @@ const MapComponent = observer(() => {
     const [clickedMarker, setMarker] = useState({} as MarkerInfoDTO)
 
     async function clickHandler(object: DomEventHandlerObject, event: DomEvent) {
-        console.log(event)
-        await mapStore.updateLocation({ ...mapStore.CurrrentLocation, center: [event.coordinates[0], event.coordinates[1]] })
-        openForm(true)
-    }
-
-    useEffect(() => {
-        if (!authStore.checkAuth()) {
-            navigate("/login")
-            return
+        if (authStore.checkAuth() && userStore.User.username) {
+            console.log(event)
+            await mapStore.updateLocation({ ...mapStore.CurrrentLocation, center: [event.coordinates[0], event.coordinates[1]] })
+            openForm(true)
         }
-    }, [])
+        
+    }
 
     return (
         <>
-
             <div style={{ height: "100%"}}>
                 
                 <YMapComponentsProvider apiKey={import.meta.env.VITE_MAP_API_KEY as string}>
 
-                    <YMap location={mapStore.CurrrentLocation}>
+                    <YMap location={mapStore.CurrrentLocation ?? { center: [0, 0], zoom: 5 }}>
                         
                         <YMapDefaultSchemeLayer theme="dark" />
                         <YMapDefaultFeaturesLayer
@@ -88,7 +83,7 @@ const MapComponent = observer(() => {
                             </>
                         })}
 
-                        {formIsOpened && mapStore.Filter.isReady ?
+                        {authStore.checkAuth() && userStore.User.username && formIsOpened && mapStore.Filter.isReady ?
                             <>
                                 <YMapDefaultMarker coordinates={mapStore.CurrrentLocation.center as LngLat}></YMapDefaultMarker>
                                 <YMapControls position={"left bottom"}>
@@ -101,7 +96,7 @@ const MapComponent = observer(() => {
                             null
                         }
 
-                        {mapStore.Filter.isReady ? 
+                        {authStore.checkAuth() && userStore.User.username && mapStore.Filter.isReady ? 
                             <YMapControls position={"bottom"}>
                                 <YMapControlButton>
                                     <Button onClick={() => navigate("/dashboard/chat")}>Перейти к чату</Button>

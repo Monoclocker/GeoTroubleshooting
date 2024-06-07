@@ -3,7 +3,6 @@ using Backend.Application.Interfaces;
 using Backend.Domain;
 using Backend.External.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Backend.External.Services
 {

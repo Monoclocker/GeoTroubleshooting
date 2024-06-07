@@ -23,6 +23,7 @@ namespace Backend.Controllers
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("f");
                 return BadRequest(ModelState);
             }
 

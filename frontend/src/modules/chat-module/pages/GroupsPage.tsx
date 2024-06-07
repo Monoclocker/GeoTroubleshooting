@@ -3,11 +3,8 @@ import Groups from "../components/Groups"
 
 const GroupsPage = () => {
 
-    /*const { id } = useParams()*/
-
-
     return <>
-        <GroupCreateForm/>
+        <GroupCreateForm />
         <Groups/>
     </>
 }

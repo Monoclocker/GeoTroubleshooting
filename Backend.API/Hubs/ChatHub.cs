@@ -27,6 +27,11 @@ namespace Backend.Hubs
             await Clients.Caller.SendAsync("SuccessRegistration", messages);
         }
 
+        public async Task UnregisterFromChat(int groupId)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId.ToString());
+        }
+
         public async Task CreateMessage(MessageDTO message)
         {
             var newMessage = await messageService.CreateMessage(message);

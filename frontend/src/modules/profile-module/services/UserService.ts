@@ -28,8 +28,33 @@ const getUserInfo = async(): Promise<UserInfoDTO | null> => {
     else {
         return await getUserInfo()
     }
+}
 
-    
+const getUserInfoById = async (id: string): Promise<UserInfoDTO | null> => {
+
+    const responce = await fetch(ADDRESS + USERINFO_PATH + "?id=" + id, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    })
+
+    if (responce.status == 200) {
+        const data = await responce.json() as UserInfoDTO
+        return data
+    }
+
+    if (responce.status == 401 && !await VerifyRefreshToken()) {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        window.location.reload()
+        return null
+    }
+    else {
+        return await getUserInfoById(id)
+    }
 }
 
 const updateUserInfo = async (dto: UserUpdateDTO): Promise<boolean> => {
@@ -49,7 +74,6 @@ const updateUserInfo = async (dto: UserUpdateDTO): Promise<boolean> => {
     if (responce.status == 401 && !await VerifyRefreshToken()) {
         localStorage.removeItem("accessToken")
         localStorage.removeItem("refreshToken")
-        window.location.reload()
         return false
     }
     else {
@@ -57,4 +81,4 @@ const updateUserInfo = async (dto: UserUpdateDTO): Promise<boolean> => {
     }
 }
 
-export default { getUserInfo, updateUserInfo }
+export default { getUserInfo, getUserInfoById, updateUserInfo }

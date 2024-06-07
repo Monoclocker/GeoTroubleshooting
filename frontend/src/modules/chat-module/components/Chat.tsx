@@ -7,6 +7,7 @@ import { useState } from "react";
 import UtilsService from "../../../utils/UtilsService";
 import Card from "antd/es/card/Card";
 import { IMAGE_ADDRESS } from "../../../utils/APIConstants";
+import { Link } from "react-router-dom";
 
 interface Props {
     id: number
@@ -78,6 +79,7 @@ const Chat = observer((props: Props) => {
         connection.invoke("CreateMessage", newMessage)
             .catch((error) => {console.log(error); return })
 
+
     }
 
     return <>
@@ -89,8 +91,8 @@ const Chat = observer((props: Props) => {
 
         {chatStore.Messages.length > 0 ? chatStore.Messages.map((message) => {
             return <>
-                <Card title={message.username}>
-                    <p>{message.timestamp?.toString()}</p>
+                <Card title={<Link to={"/profile/" + message.username}>{message.username}</Link>}>
+                    <p>{new Date(message.timestamp!).toLocaleString()}</p>
                     <p>{message.message}</p>
                     {message.attachments ? message.attachments!.map((attachment) => {
 

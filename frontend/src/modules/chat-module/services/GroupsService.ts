@@ -15,7 +15,7 @@ const GetGroups = async (data: GetGroupDTO) => {
     })
 
     if (!responce.ok) {
-        return []
+        return { groupsCount: 0, groups: undefined }
     }
 
     return await responce.json() as { groupsCount: number, groups: GroupInfoDTO[] }
@@ -33,7 +33,7 @@ const GetGroup = async (groupId: number) => {
     })
 
     if (!responce.ok) {
-        return undefined
+        return {} as GroupInfoDTO
     }
 
     return await responce.json() as GroupInfoDTO

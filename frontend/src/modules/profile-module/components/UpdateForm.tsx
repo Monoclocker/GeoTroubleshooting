@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useStores } from "../../../hooks/RootContext";
 import { observer } from "mobx-react-lite";
 import UserService from "../services/UserService";
+import { useNavigate } from "react-router";
 
 const UpdateForm = observer((user: UserInfoDTO) => {
 
@@ -14,6 +15,8 @@ const UpdateForm = observer((user: UserInfoDTO) => {
     const { UploadFiles } = UtilsService
     const [formFiles, setFormFiles] = useState<UploadFile[]>([])
     const [api, context] = notification.useNotification()
+
+    const navigate = useNavigate()
 
     const openNotification = () => {
         api.info({
@@ -59,9 +62,14 @@ const UpdateForm = observer((user: UserInfoDTO) => {
             values.birthdate = user.birthdate
         }
 
-        const result = await UserService.updateUserInfo(values)
+        try {
 
-        if (result === true) {
+            const result = await UserService.updateUserInfo(values)
+
+            if (!result) {
+                navigate("/login");
+                return;
+            }
 
             const updatedUser = {} as UserInfoDTO
 
@@ -75,12 +83,11 @@ const UpdateForm = observer((user: UserInfoDTO) => {
 
             await userStore.UpdateUser(updatedUser)
             openNotification()
+
+        } catch (error) {
+            console.error("Failed to fetch user info", error);
+            navigate("/login");
         }
-
-        
-
-        console.log("Error")
-
     }
 
 

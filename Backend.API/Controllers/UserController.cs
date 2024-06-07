@@ -20,12 +20,19 @@ namespace Backend.Controllers
         [Authorize]
         [HttpGet("Info")]
         [ProducesResponseType(typeof(UserInfoDTO), 200)]
-        public async Task<IActionResult> GetUserInfo()
+        public async Task<IActionResult> GetUserInfo(string? id)
         {
+            string? username;
 
-            string? username = User!.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+            if (id == null)
+            {
+                 username = User!.Claims!.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+            }
 
-            Console.WriteLine(username);
+            else
+            {
+                username = id;
+            }
 
             if (username == null)
             {

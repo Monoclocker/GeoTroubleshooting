@@ -49,6 +49,11 @@ namespace Backend.External.Data
 
             builder.Entity<PlaceType>()
                 .HasKey(r => r.Id);
+            
+            builder.Entity<Place>()
+                .HasOne(x=>x.Type)
+                .WithMany(x=>x.Places)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Group>()
                 .HasKey(r => r.Id);

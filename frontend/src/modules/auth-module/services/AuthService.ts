@@ -1,4 +1,3 @@
-import { useStores } from "../../../hooks/RootContext"
 import TokensDTO from "../../../models/Auth/TokensDTO"
 import UserLoginDTO from "../../../models/Auth/UserLoginDTO"
 import UserRegistrationDTO from "../../../models/Auth/UserRegistrationDTO"
@@ -42,7 +41,8 @@ const VerifyRefreshToken = async() => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("refreshToken")
         },
         body: JSON.stringify(token)
     })

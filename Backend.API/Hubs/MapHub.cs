@@ -9,12 +9,10 @@ namespace Backend.Hubs
     public class MapHub: Hub
     {
         readonly IMapMarkerService markerService;
-        IConfiguration configuration;
 
-        public MapHub(IMapMarkerService markerService, IConfiguration configuration)
+        public MapHub(IMapMarkerService markerService)
         {
             this.markerService = markerService;
-            this.configuration = configuration;
         }
         public override async Task OnConnectedAsync()
         {

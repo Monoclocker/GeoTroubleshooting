@@ -3,6 +3,7 @@ import MarkerInfoDTO from "../../../models/Marker/MarkerInfoDTO";
 import { IMAGE_ADDRESS } from "../../../utils/APIConstants";
 import React from "react";
 import { observer } from "mobx-react-lite";
+import { Link } from "react-router-dom";
 
 interface Props {
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -27,7 +28,7 @@ const MarkerModal = observer((props: Props) => {
         {
             key: '3',
             label: 'Имя пользователя',
-            children:  props.marker.username
+            children: <Link to={"/profile/" + props.marker.username}>{props.marker.username}</Link>
         },
         {
             key: '4',
@@ -37,7 +38,7 @@ const MarkerModal = observer((props: Props) => {
         {
             key: '5',
             label: 'Время создания',
-            children: props.marker.timestamp.toString()
+            children: new Date(props.marker.timestamp).toLocaleString()
         },
         {
             key: '6',

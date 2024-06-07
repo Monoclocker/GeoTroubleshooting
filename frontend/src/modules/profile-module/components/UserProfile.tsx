@@ -1,8 +1,8 @@
 ﻿import { useEffect} from "react";
 import { observer } from "mobx-react-lite";
-import { Descriptions, DescriptionsProps, Avatar, Tabs, TabsProps } from "antd";
+import { Descriptions, DescriptionsProps, Avatar, Tabs, TabsProps, Button } from "antd";
 import { useStores } from "../../../hooks/RootContext";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { IMAGE_ADDRESS } from "../../../utils/APIConstants";
 import UserService from "../services/UserService";
 import UpdateForm from "./UpdateForm";
@@ -11,31 +11,48 @@ const UserProfile = observer(() => {
 
     const { authStore, userStore } = useStores()
 
-    const { getUserInfo } = UserService
+    const { id  } = useParams();
+
+    const { getUserInfo, getUserInfoById } = UserService
 
     const navigate = useNavigate()
 
 
     useEffect(() => {
-        const func = async () => {
-            if (!authStore.checkAuth()) {
-                console.log("error")
-                navigate("/login")
-                return
+        const fetchUserInfo = async () => {
+            try {
+                
+                let userInfo;
+
+                console.log(id)
+
+                if (id !== undefined) {
+                    userInfo = await getUserInfoById(id);
+                }
+                else {
+                    userInfo = await getUserInfo();
+                }
+
+                if (!authStore.checkAuth()) {
+                    console.log("Invalid token");
+                    navigate("/login");
+                    return;
+                }
+
+                if (!userInfo) {
+                    navigate("/login");
+                    return;
+                }
+
+                await userStore.UpdateUser(userInfo);
+            } catch (error) {
+                console.error("Failed to fetch user info", error);
+                navigate("/login");
             }
+        };
 
-            const userInfo = await getUserInfo()
-
-            if (userInfo != null) {
-                await userStore.UpdateUser(userInfo)
-                return
-            }
-
-            navigate("/login")
-        }
-
-        func()
-    }, [])
+        fetchUserInfo();
+    }, [authStore, getUserInfo, getUserInfoById, navigate, userStore, id]);
 
     const profileItems: DescriptionsProps['items'] = [
         {
@@ -61,7 +78,7 @@ const UserProfile = observer(() => {
         {
             key: '5',
             label: "Дата рождения",
-            children: userStore.User.birthdate
+            children: new Date(userStore.User.birthdate).toLocaleDateString()
         }
     ]
 
@@ -84,6 +101,7 @@ const UserProfile = observer(() => {
         <>
             <Avatar size={64} icon={<img src={IMAGE_ADDRESS + userStore.User.photo} />} />
             <Tabs defaultActiveKey="1" items={tabItems} />
+            {id === undefined ? null : <Button onClick={() => navigate("/dashboard/profile")}>Перейти к своему профилю</Button>}
         </>
     );
 

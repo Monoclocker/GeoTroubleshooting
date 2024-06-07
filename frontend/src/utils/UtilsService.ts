@@ -1,6 +1,6 @@
 import RolesDTO from "../models/General/RolesDTO";
-import { ADDRESS, ROLES_UTILS, SEARCH_PATH, UPLOAD_PATH } from "./APIConstants";
-
+import PlaceTypeDTO from "../models/Places/PlaceTypeDTO";
+import { ADDRESS, PlACES_PATH, ROLES_UTILS, SEARCH_PATH, UPLOAD_PATH } from "./APIConstants";
 async function GetRoles() {
     const responce = await fetch(ADDRESS + ROLES_UTILS, {
         method: "GET",
@@ -42,4 +42,19 @@ async function GetUsernames(input: string) {
     return []
 }
 
-export default { GetRoles, UploadFiles, GetUsernames }
+
+async function GetPlaces() {
+    const responce = await fetch(ADDRESS + PlACES_PATH, {
+        method: "GET",
+    })
+
+    let body = null
+
+    if (responce.status == 200) {
+        body = await responce.json() as PlaceTypeDTO[]
+    }
+
+    return body
+}
+
+export default { GetRoles, UploadFiles, GetUsernames, GetPlaces }

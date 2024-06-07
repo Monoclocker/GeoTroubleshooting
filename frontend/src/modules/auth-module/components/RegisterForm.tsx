@@ -6,6 +6,7 @@ import { useStores } from "../../../hooks/RootContext"
 import UserRegistrationDTO from "../../../models/Auth/UserRegistrationDTO"
 import UtilsService from "../../../utils/UtilsService"
 import RolesDTO from "../../../models/General/RolesDTO"
+import moment from "moment"
 
 export default function RegisterForm(){
 
@@ -25,6 +26,7 @@ export default function RegisterForm(){
                 navigate("/login")
             })
             .catch((error) => {
+                console.log(error)
                 api.error({
                     message: error.message,
                     placement: 'top'
@@ -47,7 +49,20 @@ export default function RegisterForm(){
 
         setRole()
 
-    },[])
+    }, [])
+
+    const validateAge = (_,value) => {
+        if (!value) {
+            return Promise.reject(new Error());
+        }
+
+        const age = new Date(Date.now()).getFullYear() - new Date(value).getFullYear()
+
+        if (age < 18) {
+            return Promise.reject(new Error('Регистрация разрешена только пользователям старше 18 лет'));
+        }
+        return Promise.resolve();
+    };
 
     return (
         <>
@@ -157,6 +172,9 @@ export default function RegisterForm(){
                             required: true,
                             message: "Поле обязательно"
                         },
+                        {
+                            validator: validateAge
+                        }
                     ]}
                 >
                     <DatePicker />

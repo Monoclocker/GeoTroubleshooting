@@ -16,8 +16,8 @@ const GroupCreateForm = observer(() => {
         const result: boolean = await CreateGroup(values)
 
         if (result) {
-            const groups = await GetGroups({ pageId: 0, placeId: mapStore.Filter.placeId, username: userStore.User.username })
-            await groupsStore.GetGroups(groups)
+            const groups = await GetGroups({ pageId: groupsStore.currentPage - 1, placeId: mapStore.Filter.placeId, username: userStore.User.username })
+            await groupsStore.GetGroups(groups.groups, groups.groupsCount)
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using Backend.Application.Interfaces;
 using Backend.Domain;
+using Backend.External.Utils;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -55,7 +56,7 @@ namespace Backend.External.Data
                     //дописать для админа
                     Username = configuration["AdminCredentials:Username"]!,
                     Email = configuration["AdminCredentials:Email"]!,
-                    Password = configuration["AdminCredentials:Password"]!,
+                    Password = Hasher.ComputeHash(configuration["AdminCredentials:Password"]!),
                     FirstName = "admin",
                     LastName = "admin",
                     Birtdate = DateTime.UtcNow

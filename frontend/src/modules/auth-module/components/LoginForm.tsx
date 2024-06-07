@@ -22,7 +22,7 @@ export default function LoginForm() {
             })
             .catch((error) => {
                 api.error({
-                    message: (error.message as string),
+                    message: "Что то пошло не так",
                     placement: 'top'
                 })
             })
