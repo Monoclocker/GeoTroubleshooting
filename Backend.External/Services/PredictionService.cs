@@ -24,45 +24,41 @@ namespace Backend.External.Services
             Labels = json.Deserialize<Dictionary<int, string>>()!;
         }
 
-        public async Task<(string, float, bool)> Predict(List<string> images) 
+        public async Task<(string, float, bool)> Predict(List<string> images)
         {
+            var image = Bitmap.FromFile(images[0]);
 
+            var inputTensor = OnnxHelper.CreateTensorFromImage("input_1", image);
 
-            Dictionary<string, (float, int)> votes = Labels.ToDictionary(x => x.Value, x => (0.0f, 0));
+            var result = model.RunInference(new ReadOnlyCollection<NamedOnnxValue>(new List<NamedOnnxValue>() { inputTensor }));
 
-            foreach(string imagePath in images)
+            var output = result.First().AsEnumerable<float>().ToArray();
+
+            bool needToSendMessage = true;
+            float sumProbability = 0f;
+            string predictionString = "";
+            int numberOfClasses = 0;
+
+            for(int i = 0; i < output.Length; i++)
             {
-                var image = Bitmap.FromFile(imagePath);
+                if (i == 0 && output[i] > 0.8)
+                {
+                    sumProbability = output[i];
+                    predictionString = Labels[i];
+                    needToSendMessage = false;
+                    numberOfClasses++;
+                    break;
+                }
 
-                var inputTensor = OnnxHelper.CreateTensorFromImage("input_1", image);
-
-                var result = model.RunInference(new ReadOnlyCollection<NamedOnnxValue>(new List<NamedOnnxValue>() { inputTensor }));
-
-                Console.WriteLine(result);
-
-                var output = result.First().AsEnumerable<float>().ToArray();
-
-                foreach(var value in  output)
-                    Console.WriteLine(value);
-
-
-                var index = Array.IndexOf(output, output.Max());
-
-                string label = Labels[index];
-
-                (float, int) vote = votes[label];
-
-                vote.Item1 += output.Max();
-                vote.Item2++;
-
-                votes[label] = vote;
+                if (output[i] > 0.8)
+                {
+                    sumProbability += output[i];
+                    predictionString += Labels[i] + " ";
+                    numberOfClasses++;
+                }
             }
 
-            KeyValuePair<string, (float, int)> maximumVote = votes.OrderByDescending(x => x.Value.Item2).First();
-
-            (string, float, bool) prediction = new(maximumVote.Key, maximumVote.Value.Item1 / maximumVote.Value.Item2,
-                Labels.Where(x=>x.Value == maximumVote.Key).First().Key > 0);
-
+            (string, float, bool) prediction = new(predictionString, sumProbability/numberOfClasses, needToSendMessage);
             return await Task.FromResult(prediction);
         }
 

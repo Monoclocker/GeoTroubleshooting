@@ -47,7 +47,7 @@ const MarkerModal = observer((props: Props) => {
         },
         {
             key: '7',
-            label: 'Изображения',
+            label: 'Изображение',
             children: <>
                 {props.marker.attachments.map((attachment) => {
 
@@ -77,7 +77,7 @@ const MarkerModal = observer((props: Props) => {
     ]
 
     return (
-        <Modal open={true} footer={<Button onClick={() => props.setOpen(false)}>Закрыть</Button>} destroyOnClose={true}>
+        <Modal open={true} footer={<></>} destroyOnClose={true} onCancel={() => props.setOpen(false)}>
             <Descriptions layout="vertical" items={items}></Descriptions>
         </Modal>
     )

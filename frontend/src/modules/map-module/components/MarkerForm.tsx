@@ -1,4 +1,4 @@
-﻿import { GetProp, Button, Form, Upload, UploadProps, type UploadFile } from "antd"
+﻿import { GetProp, Button, Form, Upload, UploadProps, type UploadFile, Popover } from "antd"
 import Input from "antd/es/input/Input"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../hooks/RootContext"
@@ -79,7 +79,7 @@ export const MarkerForm = observer((props: Props) => {
     }
 
     const uploadProps: UploadProps = {
-        listType:"picture-card",
+        listType: "picture-card",
         onRemove: (file) => {
             const index = formFiles.indexOf(file);
             const newFileList = formFiles.slice();
@@ -87,9 +87,13 @@ export const MarkerForm = observer((props: Props) => {
             setFormFiles(newFileList);
         },
         beforeUpload: (file) => {
-            setFormFiles([...formFiles,file]);
+            if (file.type.startsWith("image") && formFiles.filter(x => x.type?.startsWith("image")).length == 1) {
+                return Upload.LIST_IGNORE
+            }
+            setFormFiles([...formFiles, file]);
             return false;
         },
+        
         formFiles,
     }
 
@@ -133,7 +137,9 @@ export const MarkerForm = observer((props: Props) => {
                 </Form.Item>
                 <Form.Item>
                     <Upload {...uploadProps} onPreview={onPreview}>
-                        {formFiles.length < 3 ? "Загрузить" : null}
+                        <Popover content={<p>Максимум 1 изображение</p>}>
+                            {formFiles.length < 3 ? "Загрузить" : null}
+                        </Popover>
                     </Upload>
                 </Form.Item>
                 <Form.Item>
